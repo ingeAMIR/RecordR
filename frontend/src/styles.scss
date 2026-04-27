@@ -251,3 +251,93 @@ body.custom-cursor-enabled::after {
     box-shadow: 0 0 15px rgba(0, 224, 84, 0.4);
     transform: translate(-50%, -50%);
 }
+
+/* ==========================================================
+   MOBILE RESPONSIVE FIXES
+   ========================================================== */
+
+@media (max-width: 991px) {
+    /* Desactiva cursor personalizado en móvil/tablet */
+    .custom-cursor-enabled,
+    .custom-cursor-enabled * {
+        cursor: auto !important;
+    }
+    .cursor-dot {
+        display: none !important;
+    }
+    body::after {
+        display: none !important;
+    }
+
+    /* Contenedor principal con padding lateral suficiente */
+    .container,
+    .container-fluid {
+        padding-left: 16px !important;
+        padding-right: 16px !important;
+    }
+
+    /* Headings más pequeños en móvil */
+    .display-3 { font-size: 2rem !important; }
+    .display-4 { font-size: 1.75rem !important; }
+    .display-5 { font-size: 1.5rem !important; }
+
+    /* Hero section */
+    h1.display-3 {
+        font-size: 2.2rem !important;
+        line-height: 1.15 !important;
+    }
+
+    /* Cards de tendencias — 2 columnas en móvil, no 4 */
+    .row-cols-2 > .col {
+        flex: 0 0 50%;
+        max-width: 50%;
+    }
+
+    /* Partidos — 1 columna en móvil */
+    .col-12.col-md-6.col-lg-4 {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+
+    /* Sección hero: ocultar tarjetas flotantes */
+    .float-card,
+    .float-card-delayed,
+    .float-card-slow {
+        display: none !important;
+    }
+
+    /* Estadísticas del hero en fila */
+    .mt-5.d-flex.gap-4 {
+        gap: 1rem !important;
+    }
+
+    /* Botones hero en columna en pantallas muy pequeñas */
+    @media (max-width: 480px) {
+        .d-flex.gap-3 > .btn {
+            padding-left: 1.2rem !important;
+            padding-right: 1.2rem !important;
+        }
+    }
+
+    /* Jugadores — 2 columnas en móvil */
+    .row-cols-md-3.row-cols-lg-6 > .col {
+        flex: 0 0 50%;
+        max-width: 50%;
+    }
+
+    /* Padding de secciones */
+    .py-5 {
+        padding-top: 2.5rem !important;
+        padding-bottom: 2.5rem !important;
+    }
+
+    /* Tabs de deporte en matches — scroll horizontal */
+    .d-flex.flex-wrap.gap-2:has(.sport-tab) {
+        flex-wrap: nowrap !important;
+        overflow-x: auto !important;
+        padding-bottom: 4px;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        &::-webkit-scrollbar { display: none; }
+    }
+}

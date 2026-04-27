@@ -1,39 +1,41 @@
-$border-glow: rgba(0, 224, 84, 0.4);
-$glow-hover: rgba(0, 224, 84, 0.8);
+$primary: #00e054;
 
 .navbar-wrapper {
     position: fixed;
-    top: 20px;
+    top: 16px;
     left: 0;
     width: 100%;
     z-index: 1050;
     display: flex;
     justify-content: center;
-    pointer-events: none; /* Let clicks pass through empty space */
-
+    pointer-events: none;
     animation: slideDownFade 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .navbar-island {
-    pointer-events: auto; /* Re-enable clicks on the island itself */
-    background: rgba(10, 15, 12, 0.65);
+    pointer-events: auto;
+    background: rgba(10, 15, 12, 0.75);
     backdrop-filter: blur(28px) saturate(200%);
     -webkit-backdrop-filter: blur(28px) saturate(200%);
-    
     border: 1px solid rgba(255, 255, 255, 0.08);
-    border-bottom: 1px solid rgba(0, 224, 84, 0.25); /* Subtle green at bottom */
-    border-radius: 60px; /* Highly rounded like dynamic island */
-    
-    box-shadow: 
-        0 20px 40px rgba(0, 0, 0, 0.5), 
+    border-bottom: 1px solid rgba(0, 224, 84, 0.25);
+    border-radius: 50px;
+    box-shadow:
+        0 20px 40px rgba(0, 0, 0, 0.5),
         inset 0 1px 0 rgba(255, 255, 255, 0.1),
-        0 0 20px rgba(0, 224, 84, 0.1);
-        
-    width: 90%;
+        0 0 20px rgba(0, 224, 84, 0.08);
+    width: 92%;
     max-width: 1200px;
-    padding: 0.5rem 1rem !important;
+    transition: border-radius 0.3s ease, box-shadow 0.3s ease;
 
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    // Cuando el menú móvil está abierto, esquinas menos redondeadas abajo
+    &.menu-open {
+        border-radius: 24px;
+        box-shadow:
+            0 20px 50px rgba(0, 0, 0, 0.6),
+            inset 0 1px 0 rgba(255, 255, 255, 0.1),
+            0 0 30px rgba(0, 224, 84, 0.12);
+    }
 }
 
 @keyframes slideDownFade {
@@ -41,31 +43,38 @@ $glow-hover: rgba(0, 224, 84, 0.8);
     100% { transform: translateY(0) scale(1); opacity: 1; }
 }
 
-.font-outfit {
-    font-family: 'Outfit', sans-serif;
+.navbar-spacer {
+    height: 90px;
+
+    @media (max-width: 991px) {
+        height: 80px;
+    }
 }
 
-.tracking-tight {
-    letter-spacing: -0.02em;
+// ── Tipografía ──────────────────────────────
+.font-outfit { font-family: 'Outfit', sans-serif; }
+.tracking-tight { letter-spacing: -0.02em; }
+.tracking-wider { letter-spacing: 0.08em; }
+.text-xs { font-size: 0.75rem; }
+.text-sm { font-size: 0.875rem; }
+
+// ── Brand ───────────────────────────────────
+.brand-glow {
+    text-decoration: none;
+    transition: all 0.3s ease;
+
+    &:hover {
+        transform: scale(1.03);
+        img { filter: drop-shadow(0 0 8px rgba(0, 224, 84, 0.6)); }
+        span { text-shadow: 0 0 12px rgba(255, 255, 255, 0.5); }
+    }
 }
 
-.tracking-wider {
-    letter-spacing: 0.08em;
-}
-
-.text-xs {
-    font-size: 0.75rem;
-}
-
-.text-sm {
-    font-size: 0.9rem;
-}
-
-/* Stunning hover effects on links */
+// ── Links escritorio ─────────────────────────
 .magnetic-hover {
     position: relative;
     transition: color 0.3s ease;
-    
+
     &::after {
         content: '';
         position: absolute;
@@ -74,16 +83,14 @@ $glow-hover: rgba(0, 224, 84, 0.8);
         transform: translateX(-50%) scaleX(0);
         width: 100%;
         height: 2px;
-        background: linear-gradient(90deg, transparent, var(--xports-primary), transparent);
+        background: linear-gradient(90deg, transparent, $primary, transparent);
         transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         opacity: 0.7;
     }
 
     &:hover {
         color: #fff !important;
-        &::after {
-            transform: translateX(-50%) scaleX(1);
-        }
+        &::after { transform: translateX(-50%) scaleX(1); }
     }
 }
 
@@ -100,14 +107,110 @@ $glow-hover: rgba(0, 224, 84, 0.8);
         width: 6px;
         height: 6px;
         border-radius: 50%;
-        background-color: var(--xports-primary);
-        box-shadow: 0 0 10px var(--xports-primary);
+        background-color: $primary;
+        box-shadow: 0 0 10px $primary;
     }
 }
 
-/* Advanced button styling */
+// ── Botón hamburguesa ────────────────────────
+.hamburger-btn {
+    background: none;
+    border: none;
+    padding: 8px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    transition: background 0.2s ease;
+
+    &:hover {
+        background: rgba(255, 255, 255, 0.08);
+    }
+
+    span {
+        display: block;
+        width: 22px;
+        height: 2px;
+        background: #fff;
+        border-radius: 2px;
+        transition: transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+                    opacity 0.25s ease,
+                    width 0.3s ease;
+        transform-origin: center;
+    }
+
+    // Animación X cuando está abierto
+    &.active {
+        span:nth-child(1) {
+            transform: translateY(7px) rotate(45deg);
+        }
+        span:nth-child(2) {
+            opacity: 0;
+            width: 0;
+        }
+        span:nth-child(3) {
+            transform: translateY(-7px) rotate(-45deg);
+        }
+    }
+}
+
+// ── Menú móvil desplegable ───────────────────
+.mobile-menu {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+                opacity 0.3s ease;
+    opacity: 0;
+    width: 100%;
+
+    &.open {
+        max-height: 400px;
+        opacity: 1;
+    }
+}
+
+.mobile-nav-link {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    color: rgba(255, 255, 255, 0.65);
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 0.95rem;
+    border-radius: 12px;
+    transition: all 0.2s ease;
+    letter-spacing: 0.02em;
+
+    i {
+        color: $primary;
+        opacity: 0.7;
+        transition: opacity 0.2s ease;
+    }
+
+    &:hover, &.mobile-active {
+        color: #fff;
+        background: rgba(255, 255, 255, 0.06);
+
+        i { opacity: 1; }
+    }
+
+    &.mobile-active {
+        color: $primary;
+        background: rgba(0, 224, 84, 0.08);
+    }
+}
+
+.mobile-auth {
+    padding-bottom: 4px;
+}
+
+// ── Botón CTA ────────────────────────────────
 .island-glow-btn {
-    background: linear-gradient(135deg, var(--xports-primary), #00ff66);
+    background: linear-gradient(135deg, $primary, #00ff66);
     color: #000 !important;
     box-shadow: 0 0 15px rgba(0, 224, 84, 0.3);
     transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -128,51 +231,15 @@ $glow-hover: rgba(0, 224, 84, 0.8);
     &:hover {
         box-shadow: 0 0 25px rgba(0, 224, 84, 0.6), 0 5px 15px rgba(0, 0, 0, 0.3);
         transform: translateY(-2px) scale(1.02);
-        
-        &::before {
-            left: 100%;
-        }
+
+        &::before { left: 100%; }
     }
 }
 
 .login-btn {
     transition: all 0.3s ease;
     &:hover {
-        color: var(--xports-primary) !important;
+        color: $primary !important;
         text-shadow: 0 0 8px rgba(0, 224, 84, 0.5);
-    }
-}
-
-.brand-glow {
-    transition: all 0.3s ease;
-    cursor: pointer;
-    
-    &:hover {
-        transform: scale(1.03);
-        
-        img {
-            filter: drop-shadow(0 0 8px rgba(0, 224, 84, 0.6));
-        }
-        
-        span {
-            text-shadow: 0 0 12px rgba(255, 255, 255, 0.5);
-        }
-    }
-}
-
-// Media Query for Mobile
-@media (max-width: 991px) {
-    .navbar-island {
-        border-radius: 20px;
-        width: 95%;
-        padding: 0.8rem 1.2rem !important;
-
-        .navbar-collapse {
-            background: rgba(10, 15, 12, 0.8);
-            border-radius: 12px;
-            padding: 1rem;
-            margin-top: 1rem;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
     }
 }

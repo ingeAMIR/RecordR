@@ -1,51 +1,92 @@
 <div class="navbar-wrapper">
-    <nav class="navbar navbar-expand-lg navbar-island py-2 transition-all" id="mainNav">
+    <nav class="navbar navbar-island py-2" id="mainNav" [class.menu-open]="menuOpen">
         <div class="container-fluid px-4">
-            <a class="navbar-brand d-flex align-items-center gap-2 position-relative brand-glow" routerLink="/">
-                <img src="logo_final.png" alt="RecordR Logo"
-                    style="height: 45px; width: auto;">
-                <span class="font-outfit fw-black tracking-tight text-white ms-1" style="font-size: 1.5rem;">RecordR</span>
-            </a>
 
-            <button class="navbar-toggler border-0 text-white" type="button" data-bs-toggle="collapse"
-                data-bs-target="#navbarNav">
-                <i class="bi bi-list fs-2"></i>
-            </button>
+            <!-- Brand + Hamburger row -->
+            <div class="d-flex align-items-center justify-content-between w-100">
+                <a class="navbar-brand d-flex align-items-center gap-2 brand-glow" routerLink="/" (click)="closeMenu()">
+                    <img src="logo_final.png" alt="RecordR Logo" style="height: 40px; width: auto;">
+                    <span class="font-outfit fw-black tracking-tight text-white ms-1" style="font-size: 1.4rem;">RecordR</span>
+                </a>
 
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-lg-4 Island-links">
+                <!-- Botón hamburguesa (solo móvil) -->
+                <button class="hamburger-btn d-lg-none" type="button" (click)="toggleMenu()" [class.active]="menuOpen" aria-label="Menú">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+
+                <!-- Links de escritorio -->
+                <div class="desktop-nav d-none d-lg-flex align-items-center gap-4">
+                    <ul class="navbar-nav flex-row gap-4 mb-0">
+                        <li class="nav-item">
+                            <a class="nav-link text-uppercase fw-bold text-secondary text-xs tracking-wider magnetic-hover"
+                                routerLink="/matches" routerLinkActive="active-link">Partidos</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-uppercase fw-bold text-secondary text-xs tracking-wider magnetic-hover"
+                                routerLink="/players" routerLinkActive="active-link">Jugadores</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-uppercase fw-bold text-secondary text-xs tracking-wider magnetic-hover"
+                                routerLink="/lists" routerLinkActive="active-link">Listas</a>
+                        </li>
+                    </ul>
+
+                    <div class="d-flex align-items-center gap-2">
+                        <ng-container *ngIf="authService.currentUser$ | async as user; else guestDesktop">
+                            <a routerLink="/profile" class="btn btn-primary rounded-pill px-4 fw-bold text-sm border-0 island-glow-btn d-flex align-items-center gap-2">
+                                <img *ngIf="user.avatar; else iconDesktop" [src]="user.avatar" alt="Avatar" class="rounded-circle" style="width: 20px; height: 20px; object-fit: cover;">
+                                <ng-template #iconDesktop><i class="bi bi-person-fill fs-5 m-0 lh-1"></i></ng-template>
+                                <span>Mi Perfil</span>
+                            </a>
+                        </ng-container>
+                        <ng-template #guestDesktop>
+                            <a routerLink="/login" class="btn btn-link text-decoration-none text-white fw-bold text-sm login-btn">Iniciar Sesión</a>
+                            <a routerLink="/register" class="btn btn-primary rounded-pill px-4 fw-bold text-sm border-0 island-glow-btn">Registrarse</a>
+                        </ng-template>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Menú móvil desplegable -->
+            <div class="mobile-menu d-lg-none" [class.open]="menuOpen">
+                <ul class="navbar-nav gap-1 mt-3">
                     <li class="nav-item">
-                        <a class="nav-link text-uppercase fw-bold text-secondary text-xs tracking-wider magnetic-hover"
-                            routerLink="/matches" routerLinkActive="active-link">Partidos</a>
+                        <a class="mobile-nav-link" routerLink="/matches" routerLinkActive="mobile-active" (click)="closeMenu()">
+                            <i class="bi bi-calendar3 me-2"></i>Partidos
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link text-uppercase fw-bold text-secondary text-xs tracking-wider magnetic-hover"
-                            routerLink="/players" routerLinkActive="active-link">Jugadores</a>
+                        <a class="mobile-nav-link" routerLink="/players" routerLinkActive="mobile-active" (click)="closeMenu()">
+                            <i class="bi bi-person-badge me-2"></i>Jugadores
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link text-uppercase fw-bold text-secondary text-xs tracking-wider magnetic-hover" routerLink="/lists"
-                            routerLinkActive="active-link">Listas</a>
+                        <a class="mobile-nav-link" routerLink="/lists" routerLinkActive="mobile-active" (click)="closeMenu()">
+                            <i class="bi bi-collection me-2"></i>Listas
+                        </a>
                     </li>
                 </ul>
 
-                <div class="d-flex align-items-center gap-3">
-                    <ng-container *ngIf="authService.currentUser$ | async as user; else guestLinks">
-                        <a routerLink="/profile" class="btn btn-primary rounded-pill px-4 fw-bold text-sm border-0 island-glow-btn d-flex align-items-center gap-2">
-                            <img *ngIf="user.avatar; else defaultAvatar" [src]="user.avatar" alt="Avatar" class="rounded-circle" style="width: 20px; height: 20px; object-fit: cover;">
-                            <ng-template #defaultAvatar>
-                                <i class="bi bi-person-fill fs-5 m-0 lh-1"></i>
-                            </ng-template>
-                            <span>Mi Perfil</span>
+                <div class="mobile-auth mt-3 pt-3 border-top border-secondary border-opacity-25">
+                    <ng-container *ngIf="authService.currentUser$ | async as user; else guestMobile">
+                        <a routerLink="/profile" class="btn btn-primary rounded-pill w-100 fw-bold border-0 island-glow-btn d-flex align-items-center justify-content-center gap-2" (click)="closeMenu()">
+                            <i class="bi bi-person-fill"></i>
+                            Mi Perfil
                         </a>
                     </ng-container>
-                    <ng-template #guestLinks>
-                        <a routerLink="/login" class="btn btn-link text-decoration-none text-white fw-bold text-sm login-btn">Iniciar Sesión</a>
-                        <a routerLink="/register" class="btn btn-primary rounded-pill px-4 fw-bold text-sm border-0 island-glow-btn">Registrarse</a>
+                    <ng-template #guestMobile>
+                        <div class="d-flex gap-2">
+                            <a routerLink="/login" class="btn btn-outline-light rounded-pill fw-bold flex-fill text-sm" (click)="closeMenu()">Iniciar Sesión</a>
+                            <a routerLink="/register" class="btn btn-primary rounded-pill fw-bold flex-fill text-sm border-0 island-glow-btn" (click)="closeMenu()">Registrarse</a>
+                        </div>
                     </ng-template>
                 </div>
             </div>
+
         </div>
     </nav>
 </div>
-<!-- Spacer for sticky island nav -->
-<div style="height: 110px;"></div>
+<!-- Spacer for sticky nav -->
+<div class="navbar-spacer"></div>
