@@ -1,22 +1,18 @@
-/* ============================================================
-   Players Page — Full League Mode
-   ============================================================ */
+$primary: #00e054;
+$card-bg: #1a1f25;
 
 .players-page {
     min-height: 100vh;
-    background: #0d1117;
 }
 
-/* ── Header ── */
+/* ── Header ─────────────────────────── */
 .page-header {
     background: linear-gradient(180deg, rgba(0, 224, 84, 0.04) 0%, transparent 100%);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    margin-bottom: 1.5rem;
 }
 
 .espn-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
     background: rgba(0, 224, 84, 0.06);
     border: 1px solid rgba(0, 224, 84, 0.2);
     border-radius: 999px;
@@ -29,409 +25,387 @@
 }
 
 .espn-dot {
-    width: 7px;
-    height: 7px;
+    width: 6px; height: 6px;
+    background: $primary;
     border-radius: 50%;
-    background: #00e054;
-    animation: pulse-dot 2s ease-in-out infinite;
+    animation: blink 1.5s ease-in-out infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+/* ── Sport status chips (header) ─────── */
+.sport-status-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    color: rgba(255,255,255,0.4);
+    transition: all 0.3s ease;
+
+    &.loading {
+        border-color: rgba(0, 224, 84, 0.3);
+        color: rgba(0, 224, 84, 0.7);
+        background: rgba(0, 224, 84, 0.05);
+    }
+    &.done {
+        border-color: rgba(0, 224, 84, 0.5);
+        color: $primary;
+        background: rgba(0, 224, 84, 0.08);
+    }
 }
 
-@keyframes pulse-dot {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.5; transform: scale(0.8); }
+/* ── Sport tabs ──────────────────────── */
+.sport-tabs-row {
+    scrollbar-width: none;
+    &::-webkit-scrollbar { display: none; }
 }
 
-/* Stats summary row */
-.stats-summary {
-    flex-wrap: wrap;
-    justify-content: flex-end;
-}
-
-.stat-bubble {
-    display: flex;
+.sport-tab-btn {
+    display: inline-flex;
     align-items: center;
     gap: 6px;
-    background: rgba(30, 34, 40, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    border-radius: 10px;
-    padding: 4px 10px;
-    font-size: 0.7rem;
-
-    .stat-bubble-name {
-        color: rgba(255, 255, 255, 0.5);
-        font-weight: 600;
-    }
-}
-
-.player-total-badge {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background: rgba(0, 224, 84, 0.06);
-    border: 1px solid rgba(0, 224, 84, 0.2);
-    border-radius: 12px;
-    padding: 6px 16px;
-    min-width: 70px;
-
-    .total-number {
-        font-size: 1.4rem;
-        font-weight: 800;
-        color: #fff;
-        line-height: 1;
-    }
-
-    .total-label {
-        font-size: 0.6rem;
-        text-transform: uppercase;
-        color: rgba(0, 224, 84, 0.7);
-        letter-spacing: 0.06em;
-        font-weight: 600;
-    }
-}
-
-/* ── Filters Bar ── */
-.filters-bar {
-    background: rgba(20, 24, 28, 0.7);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    backdrop-filter: blur(12px);
-}
-
-.filter-label {
-    font-size: 0.65rem;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: rgba(255, 255, 255, 0.4);
-    font-weight: 700;
-    display: block;
-}
-
-.search-wrapper {
-    .search-icon {
-        position: absolute;
-        left: 13px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: rgba(255, 255, 255, 0.3);
-        font-size: 0.85rem;
-        z-index: 2;
-    }
-}
-
-.search-input {
-    background: rgba(10, 14, 18, 0.8);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    color: #fff;
-    height: 40px;
-    font-size: 0.85rem;
-    transition: border-color 0.2s, box-shadow 0.2s;
-
-    &:focus {
-        background: rgba(10, 14, 18, 0.95);
-        border-color: rgba(0, 224, 84, 0.5);
-        box-shadow: 0 0 0 3px rgba(0, 224, 84, 0.08);
-        color: #fff;
-    }
-
-    &::placeholder { color: rgba(255, 255, 255, 0.25); }
-}
-
-.filter-select {
-    background: rgba(10, 14, 18, 0.8);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    color: rgba(255, 255, 255, 0.7);
+    padding: 8px 18px;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 999px;
+    background: rgba(255,255,255,0.04);
+    color: rgba(255,255,255,0.5);
     font-size: 0.82rem;
-    height: 40px;
-    transition: border-color 0.2s;
-
-    &:focus {
-        background: rgba(10, 14, 18, 0.95);
-        border-color: rgba(0, 224, 84, 0.4);
-        box-shadow: 0 0 0 3px rgba(0, 224, 84, 0.08);
-        color: #fff;
-    }
-
-    option { background: #14181c; color: #fff; }
-}
-
-/* Position buttons */
-.btn-pos {
-    background: rgba(10, 14, 18, 0.7);
-    border: 1px solid rgba(255, 255, 255, 0.07);
-    color: rgba(255, 255, 255, 0.5);
-    font-size: 0.65rem;
     font-weight: 700;
-    letter-spacing: 0.05em;
-    padding: 4px 8px;
-    border-radius: 8px;
-    transition: all 0.2s;
     white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    i { font-size: 0.9rem; }
 
     &:hover {
-        border-color: rgba(0, 224, 84, 0.3);
-        color: rgba(0, 224, 84, 0.8);
+        background: rgba(255,255,255,0.08);
+        color: #fff;
+        border-color: rgba(255,255,255,0.2);
     }
 
     &.active {
-        background: rgba(0, 224, 84, 0.1);
-        border-color: rgba(0, 224, 84, 0.5);
-        color: #00e054;
+        background: $primary;
+        border-color: $primary;
+        color: #000;
+        box-shadow: 0 0 16px rgba(0, 224, 84, 0.3);
     }
 }
 
-/* Results count */
-.result-count {
-    text-align: right;
+/* ── Filters row ─────────────────────── */
+.filters-row {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 16px;
+    padding: 12px 16px;
+}
 
-    .result-number {
-        font-size: 1.6rem;
-        font-weight: 800;
-        color: #fff;
-        line-height: 1;
-        display: block;
-    }
-
-    .result-label {
-        font-size: 0.65rem;
-        text-transform: uppercase;
-        color: rgba(255, 255, 255, 0.35);
-        letter-spacing: 0.06em;
+.search-box {
+    .search-icon {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: rgba(255,255,255,0.3);
+        font-size: 0.85rem;
+        pointer-events: none;
     }
 }
 
-/* ── Player Cards ── */
-.player-card {
-    background: rgba(18, 22, 28, 0.8);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    overflow: hidden;
+.filter-input {
+    width: 100%;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    padding: 8px 12px;
+    color: #fff;
+    font-size: 0.85rem;
+    outline: none;
+    transition: border-color 0.2s ease;
+
+    &::placeholder { color: rgba(255,255,255,0.25); }
+    &:focus { border-color: rgba(0, 224, 84, 0.4); }
+}
+
+.filter-select {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    padding: 8px 12px;
+    color: rgba(255,255,255,0.8);
+    font-size: 0.82rem;
+    font-weight: 600;
+    outline: none;
     cursor: pointer;
-    transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
-    display: flex;
-    flex-direction: column;
+    transition: border-color 0.2s ease;
 
-    .card-top-bar {
-        height: 3px;
-        opacity: 0.6;
-        transition: opacity 0.25s;
-    }
+    option { background: #1a1f25; color: #fff; }
+    &:focus { border-color: rgba(0, 224, 84, 0.4); }
+}
+
+/* Posición pills */
+.pos-pills { flex-wrap: wrap; }
+
+.pos-pill {
+    padding: 5px 12px;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.03);
+    color: rgba(255,255,255,0.5);
+    font-size: 0.75rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
 
     &:hover {
-        transform: translateY(-3px);
-        border-color: rgba(255, 255, 255, 0.15);
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+        background: rgba(255,255,255,0.08);
+        color: #fff;
+    }
 
-        .card-top-bar { opacity: 1; }
+    &.active {
+        background: var(--pos-color, #{$primary});
+        border-color: var(--pos-color, #{$primary});
+        color: #000;
+        opacity: 0.9;
     }
 }
 
-.card-inner {
-    flex: 1;
-    padding: 0.75rem !important;
-}
-
-/* Jersey + star */
-.jersey-num {
-    font-size: 0.65rem;
-    font-weight: 700;
-    color: rgba(255, 255, 255, 0.35);
-    background: rgba(255, 255, 255, 0.04);
-    border-radius: 5px;
-    padding: 1px 5px;
-}
-
-.star-icon {
-    color: #f59e0b;
-    font-size: 0.7rem;
-}
-
-/* Avatar: team logo inside bordered circle */
-.avatar-wrapper {
-    width: 70px;
-    height: 70px;
-    border-radius: 50%;
-    border: 2px solid;
-    border-color: rgba(255, 255, 255, 0.1);
-    background: rgba(30, 34, 40, 0.8);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    overflow: hidden;
-    flex-shrink: 0;
-}
-
-/* Real player photo (TheSportsDB cutout) */
-.player-photo-real {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: top center;
-}
-
-/* Initials fallback */
-.player-initials {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-
-    .initials-text {
-        font-size: 1.2rem;
-        font-weight: 800;
-        color: rgba(255, 255, 255, 0.8);
-        letter-spacing: -0.02em;
-        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
-    }
-}
-
-.pos-chip {
-    position: absolute;
-    bottom: -1px;
-    right: -1px;
-    width: 22px;
-    height: 22px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.5rem;
-    font-weight: 800;
-    color: white;
-    letter-spacing: 0;
-    border: 2px solid #0d1117;
-}
-
-/* Player name */
-.player-name {
+.result-count-badge {
+    background: rgba(0, 224, 84, 0.12);
+    border: 1px solid rgba(0, 224, 84, 0.25);
+    color: $primary;
     font-size: 0.75rem;
+    font-weight: 800;
+    padding: 4px 10px;
+    border-radius: 999px;
+}
+
+.btn-clear {
+    background: none;
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 999px;
+    color: rgba(255,255,255,0.4);
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 4px 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+        border-color: #ef4444;
+        color: #ef4444;
+        background: rgba(239, 68, 68, 0.08);
+    }
+}
+
+/* ── Skeleton ────────────────────────── */
+@keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+.player-skel {
+    background: $card-bg;
+    border: 1px solid rgba(255,255,255,0.05);
+    overflow: hidden;
+
+    .sk-top {
+        height: 4px;
+        background: linear-gradient(90deg, #333 25%, #444 50%, #333 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite;
+    }
+    .sk-body { padding: 1rem; }
+    .sk-circle {
+        width: 72px; height: 72px;
+        border-radius: 50%;
+        background: linear-gradient(90deg, #222 25%, #2a2a2a 50%, #222 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite;
+    }
+    .sk-line {
+        height: 10px; border-radius: 5px;
+        background: linear-gradient(90deg, #222 25%, #2a2a2a 50%, #222 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite;
+        margin: 0 auto 8px;
+        &.w-70 { width: 70%; }
+        &.w-50 { width: 50%; }
+    }
+}
+
+/* ── Player Card ─────────────────────── */
+.player-card {
+    background: $card-bg;
+    border: 1px solid rgba(255,255,255,0.06);
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    cursor: pointer;
+
+    &:hover {
+        transform: translateY(-6px);
+        border-color: rgba(0, 224, 84, 0.3);
+        box-shadow: 0 12px 30px rgba(0,0,0,0.4), 0 0 0 1px rgba(0, 224, 84, 0.15);
+
+        .card-footer-espn { opacity: 1; }
+    }
+}
+
+.card-accent {
+    height: 3px;
+    width: 100%;
+}
+
+.card-body-inner {
+    padding: 12px;
+}
+
+/* Sport label + jersey */
+.sport-mini-tag {
+    font-size: 0.6rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: $primary;
+    opacity: 0.8;
+}
+
+.jersey-badge {
+    font-size: 0.65rem;
+    font-weight: 800;
+    color: rgba(255,255,255,0.3);
+}
+
+/* Avatar */
+.avatar-wrap {
+    position: relative;
+    width: 72px; height: 72px;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.1);
+    overflow: visible;
+    flex-shrink: 0;
+
+    .player-img {
+        width: 100%; height: 100%;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    .player-initials {
+        width: 100%; height: 100%;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+        font-weight: 900;
+        color: rgba(255,255,255,0.7);
+    }
+
+    .pos-badge {
+        position: absolute;
+        bottom: -4px; right: -4px;
+        font-size: 0.55rem;
+        font-weight: 800;
+        padding: 2px 5px;
+        border-radius: 6px;
+        color: #000;
+        white-space: nowrap;
+        letter-spacing: 0.04em;
+    }
+}
+
+/* Nombre */
+.player-name {
+    font-size: 0.8rem;
     line-height: 1.2;
     overflow: hidden;
     display: -webkit-box;
     -webkit-line-clamp: 2;
-    line-clamp: 2;
     -webkit-box-orient: vertical;
 }
 
-/* Team row */
+/* Team logo */
 .team-mini-logo {
-    width: 14px;
-    height: 14px;
+    width: 16px; height: 16px;
     object-fit: contain;
-    flex-shrink: 0;
 }
-
-/* Nationality */
-.nat-row { min-height: 20px; }
-.flag-img {
-    width: 16px;
-    height: 11px;
-    object-fit: cover;
-    border-radius: 2px;
-    flex-shrink: 0;
-}
-
-.text-xs { font-size: 0.72rem; }
-.text-sm { font-size: 0.82rem; }
 
 /* Stats */
-.stats-row { flex-wrap: wrap; }
+.stats-row { margin-top: 8px; }
 
 .stat-box {
     display: flex;
     flex-direction: column;
     align-items: center;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 7px;
-    padding: 3px 6px;
-    min-width: 30px;
-    flex: 1;
+    padding: 4px 6px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.04);
+    min-width: 34px;
 
-    .stat-val {
-        font-size: 0.78rem;
-        font-weight: 700;
-        line-height: 1;
-    }
-
-    .stat-lbl {
-        font-size: 0.54rem;
-        text-transform: uppercase;
-        letter-spacing: 0.04em;
-        color: rgba(255, 255, 255, 0.35);
+    &.highlight .stat-val {
+        color: $primary;
     }
 }
 
-/* Card footer */
-.card-footer-row {
-    border-top: 1px solid rgba(255, 255, 255, 0.04);
+.stat-val {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: rgba(255,255,255,0.8);
+    line-height: 1;
+}
+
+.stat-lbl {
+    font-size: 0.55rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.3);
+    letter-spacing: 0.05em;
+}
+
+/* Footer ESPN */
+.card-footer-espn {
+    padding: 6px 12px;
     text-align: center;
-    padding: 6px;
     font-size: 0.65rem;
-    letter-spacing: 0.08em;
+    font-weight: 700;
+    color: $primary;
+    opacity: 0;
+    border-top: 1px solid rgba(255,255,255,0.04);
+    transition: opacity 0.2s ease;
+    letter-spacing: 0.05em;
 }
 
-/* ── Load More ── */
+/* ── Load more ───────────────────────── */
 .btn-load-more {
-    background: rgba(0, 224, 84, 0.08);
-    border: 1px solid rgba(0, 224, 84, 0.3);
-    color: #00e054;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: rgba(255,255,255,0.7);
     font-weight: 700;
     font-size: 0.88rem;
-    letter-spacing: 0.03em;
-    transition: all 0.25s;
+    transition: all 0.3s ease;
 
     &:hover {
-        background: rgba(0, 224, 84, 0.15);
-        border-color: rgba(0, 224, 84, 0.6);
-        color: #00e054;
-        transform: translateY(-1px);
+        background: rgba(0, 224, 84, 0.08);
+        border-color: rgba(0, 224, 84, 0.3);
+        color: $primary;
     }
 }
 
-/* ── Skeleton Loaders ── */
-@keyframes shimmer {
-    0% { background-position: -400px 0; }
-    100% { background-position: 400px 0; }
-}
-
-$sk-bg: linear-gradient(90deg, rgba(30,34,40,0.6) 25%, rgba(50,58,70,0.4) 50%, rgba(30,34,40,0.6) 75%);
-
-.player-card-skel {
-    background: rgba(18, 22, 28, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.04);
-    overflow: hidden;
-
-    .sk-header {
-        height: 3px;
-        background: rgba(255, 255, 255, 0.05);
-    }
-
-    .sk-body {
-        display: flex;
+/* ── Mobile ──────────────────────────── */
+@media (max-width: 576px) {
+    .filters-row {
         flex-direction: column;
-        align-items: center;
-        padding: 1rem;
+        align-items: stretch;
     }
+    .search-box { max-width: 100% !important; }
+    .filter-select { width: 100%; }
+    .pos-pills { gap: 6px; }
+    .ms-auto { margin-left: 0 !important; }
 
-    .sk-avatar {
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
-        background: $sk-bg;
-        background-size: 400px 100%;
-        animation: shimmer 1.4s ease-in-out infinite;
-    }
-
-    .sk-line {
-        height: 10px;
-        border-radius: 5px;
-        background: $sk-bg;
-        background-size: 400px 100%;
-        animation: shimmer 1.4s ease-in-out infinite;
-
-        &.w-75 { width: 75%; }
-        &.w-50 { width: 50%; }
-    }
+    .avatar-wrap { width: 60px; height: 60px; }
+    .player-name { font-size: 0.75rem; }
 }

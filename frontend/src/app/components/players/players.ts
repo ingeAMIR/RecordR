@@ -1,13 +1,14 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
-import { Subject, of } from 'rxjs';
-import { takeUntil, catchError } from 'rxjs/operators';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { EspnPlayersService, EspnPlayer } from '../../services/espn-players.service';
 
-interface EspnPlayerEx extends EspnPlayer {
-  _photoChecked?: boolean;
+interface SportTab {
+  sport: string;
+  sportLabel: string;
+  icon: string;
 }
 
 @Component({
@@ -19,79 +20,85 @@ interface EspnPlayerEx extends EspnPlayer {
 })
 export class PlayersComponent implements OnInit, OnDestroy {
 
-  // Data
-  allPlayers: EspnPlayerEx[] = [];
-  filteredPlayers: EspnPlayerEx[] = [];
-  displayedPlayers: EspnPlayerEx[] = [];
+  // ── Datos ──────────────────────────────────
+  allPlayers: EspnPlayer[] = [];
+  filteredPlayers: EspnPlayer[] = [];
+  displayedPlayers: EspnPlayer[] = [];
 
-  // Loading state: track each league independently
+  // Estado de carga por liga
   leagueStatus: Record<string, 'loading' | 'done' | 'error'> = {};
+
   get isLoading(): boolean {
     return Object.values(this.leagueStatus).some(s => s === 'loading');
   }
-  get loadedCount(): number {
-    return this.allPlayers.length;
+  get anyLoaded(): boolean {
+    return this.allPlayers.length > 0;
   }
 
-  // Filters
-  searchQuery = '';
-  selectedLeague = 'all';
+  // ── Sport tabs ──────────────────────────────
+  sportTabs: SportTab[] = [
+    { sport: 'all',        sportLabel: 'Todos',  icon: 'bi-grid-fill' },
+    { sport: 'soccer',     sportLabel: 'Fútbol', icon: 'bi-dribbble' },
+    { sport: 'basketball', sportLabel: 'NBA',    icon: 'bi-trophy-fill' },
+    { sport: 'football',   sportLabel: 'NFL',    icon: 'bi-shield-fill' },
+    { sport: 'baseball',   sportLabel: 'MLB',    icon: 'bi-circle-fill' },
+  ];
+
+  // ── Filtros ─────────────────────────────────
+  activeSport = 'all';
+  activeLeague = 'all';
   selectedPosition = 'all';
   selectedTeam = 'all';
+  searchQuery = '';
 
-  // Pagination
+  // ── Paginación ──────────────────────────────
   pageSize = 48;
   currentPage = 0;
-  get totalPages(): number {
-    return Math.ceil(this.filteredPlayers.length / this.pageSize);
-  }
+
   get hasMore(): boolean {
     return (this.currentPage + 1) * this.pageSize < this.filteredPlayers.length;
   }
 
-  leagues: { slug: string; name: string }[] = [];
-
-  positions = [
-    { key: 'all', label: 'Todas' },
-    { key: 'Portero', label: 'Porteros' },
-    { key: 'Defensa', label: 'Defensas' },
-    { key: 'Mediocampista', label: 'Mediocampistas' },
-    { key: 'Delantero', label: 'Delanteros' },
-  ];
-
-  get availableTeams(): { id: string, name: string }[] {
-    const seen = new Set<string>();
-    const teams: { id: string, name: string }[] = [];
-    const source = this.selectedLeague === 'all'
+  // ── Opciones derivadas de datos cargados ────
+  get leaguesForSport(): { slug: string; name: string }[] {
+    const pool = this.activeSport === 'all'
       ? this.allPlayers
-      : this.allPlayers.filter(p => p.leagueSlug === this.selectedLeague);
-    for (const p of source) {
-      if (!seen.has(p.teamId)) {
-        seen.add(p.teamId);
-        teams.push({ id: p.teamId, name: p.team });
-      }
-    }
-    return teams.sort((a, b) => a.name.localeCompare(b.name));
+      : this.allPlayers.filter(p => p.sport === this.activeSport);
+    const seen = new Map<string, string>();
+    pool.forEach(p => { if (!seen.has(p.leagueSlug)) seen.set(p.leagueSlug, p.league); });
+    return [...seen.entries()].map(([slug, name]) => ({ slug, name })).sort((a, b) => a.name.localeCompare(b.name));
+  }
+
+  get availablePositions(): string[] {
+    const pool = this.getBasePool();
+    const pos = new Set<string>();
+    pool.forEach(p => { if (p.positionGroup) pos.add(p.positionGroup); });
+    return [...pos].sort();
+  }
+
+  get availableTeams(): { id: string; name: string }[] {
+    const pool = this.getBasePool();
+    const seen = new Map<string, string>();
+    pool.forEach(p => { if (!seen.has(p.teamId)) seen.set(p.teamId, p.team); });
+    return [...seen.entries()].map(([id, name]) => ({ id, name })).sort((a, b) => a.name.localeCompare(b.name));
   }
 
   get currentSeason(): string {
-    const now = new Date();
-    const year = now.getMonth() >= 7 ? now.getFullYear() : now.getFullYear() - 1;
-    return `${year}-${String(year + 1).slice(-2)}`;
+    const y = new Date().getFullYear();
+    return `${new Date().getMonth() >= 7 ? y : y - 1}-${String((new Date().getMonth() >= 7 ? y : y - 1) + 1).slice(-2)}`;
   }
+
+  get skeletonCount(): number[] { return Array(24).fill(0); }
 
   private destroy$ = new Subject<void>();
 
   constructor(
     private espnService: EspnPlayersService,
-    private http: HttpClient,
     private cdr: ChangeDetectorRef
-  ) {
-    this.leagues = this.espnService.getLeagues();
-  }
+  ) {}
 
   ngOnInit(): void {
-    this.loadAllLeagues();
+    this.loadAll();
   }
 
   ngOnDestroy(): void {
@@ -99,43 +106,59 @@ export class PlayersComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  loadAllLeagues(): void {
-    this.allPlayers = [];
-    this.filteredPlayers = [];
-    this.displayedPlayers = [];
+  private loadAll(): void {
+    const leagues = this.espnService.getSportLeagues();
 
-    // Load each league independently and stream results as they arrive
-    for (const league of this.leagues) {
-      this.leagueStatus[league.slug] = 'loading';
+    for (const cfg of leagues) {
+      const key = `${cfg.sport}__${cfg.espnLeague}`;
+      this.leagueStatus[key] = 'loading';
 
-      this.espnService.getPlayersByLeague(league.slug).pipe(
+      this.espnService.getPlayersByLeague(cfg).pipe(
         takeUntil(this.destroy$)
       ).subscribe({
         next: players => {
           this.allPlayers = [...this.allPlayers, ...players];
-          this.leagueStatus[league.slug] = 'done';
+          this.leagueStatus[key] = 'done';
           this.applyFilters();
           this.cdr.detectChanges();
         },
         error: () => {
-          this.leagueStatus[league.slug] = 'error';
+          this.leagueStatus[key] = 'error';
           this.cdr.detectChanges();
         }
       });
     }
   }
 
-  applyFilters(): void {
-    let result = [...this.allPlayers];
+  // ── Filtros ─────────────────────────────────
 
-    if (this.selectedLeague !== 'all') {
-      result = result.filter(p => p.leagueSlug === this.selectedLeague);
-    }
+  selectSport(sport: string): void {
+    this.activeSport = sport;
+    this.activeLeague = 'all';
+    this.selectedPosition = 'all';
+    this.selectedTeam = 'all';
+    this.applyFilters();
+  }
+
+  onFilterChange(): void {
+    this.applyFilters();
+  }
+
+  private getBasePool(): EspnPlayer[] {
+    let pool = [...this.allPlayers];
+    if (this.activeSport !== 'all') pool = pool.filter(p => p.sport === this.activeSport);
+    if (this.activeLeague !== 'all') pool = pool.filter(p => p.leagueSlug === this.activeLeague);
+    return pool;
+  }
+
+  private applyFilters(): void {
+    let result = this.getBasePool();
+
     if (this.selectedTeam !== 'all') {
       result = result.filter(p => p.teamId === this.selectedTeam);
     }
     if (this.selectedPosition !== 'all') {
-      result = result.filter(p => p.position === this.selectedPosition);
+      result = result.filter(p => p.positionGroup === this.selectedPosition);
     }
     if (this.searchQuery.trim()) {
       const q = this.searchQuery.toLowerCase().trim();
@@ -154,114 +177,114 @@ export class PlayersComponent implements OnInit, OnDestroy {
   private updateDisplayed(): void {
     const end = (this.currentPage + 1) * this.pageSize;
     this.displayedPlayers = this.filteredPlayers.slice(0, end);
-    // Defer enrichment to break synchronous change-detection chain
-    setTimeout(() => this.enrichVisiblePhotos(), 0);
   }
-
-  private enrichVisiblePhotos(): void {
-    const toEnrich = this.displayedPlayers.filter(p => !p.photo && !p._photoChecked);
-    if (!toEnrich.length) return;
-
-    // Mark immediately to avoid duplicate requests
-    toEnrich.forEach(p => (p._photoChecked = true));
-
-    toEnrich.forEach(player => {
-      this.http.get<any>(
-        `https://www.thesportsdb.com/api/v1/json/3/searchplayers.php?p=${encodeURIComponent(player.name)}`
-      ).pipe(
-        takeUntil(this.destroy$),
-        catchError(() => of(null))
-      ).subscribe((res: any) => {
-        if (!res?.player?.[0]) return;
-        const match = res.player[0];
-        const photoUrl: string = match.strCutout || match.strThumb || '';
-        if (photoUrl) {
-          player.photo = photoUrl;
-          // markForCheck is safe inside async callbacks — won't cause infinite loop
-          this.cdr.markForCheck();
-        }
-      });
-    });
-  }
-
 
   loadMore(): void {
     this.currentPage++;
     this.updateDisplayed();
   }
 
-  onLeagueChange(slug: string): void {
-    this.selectedLeague = slug;
-    this.selectedTeam = 'all'; // reset team filter when league changes
+  clearFilters(): void {
+    this.searchQuery = '';
+    this.activeLeague = 'all';
+    this.selectedPosition = 'all';
+    this.selectedTeam = 'all';
     this.applyFilters();
   }
 
-  onFilterChange(): void {
-    this.applyFilters();
+  get hasActiveFilters(): boolean {
+    return this.searchQuery !== '' || this.activeLeague !== 'all' ||
+           this.selectedPosition !== 'all' || this.selectedTeam !== 'all';
+  }
+
+  // ── Helpers visuales ─────────────────────────
+
+  getStatLabels(player: EspnPlayer): { label: string; value: number; highlight?: boolean }[] {
+    const s = player.stats;
+    switch (player.sport) {
+      case 'basketball':
+        return [
+          { label: 'PTS', value: Math.round(s['avgPoints'] ?? s['points'] ?? 0), highlight: true },
+          { label: 'AST', value: Math.round(s['avgAssists'] ?? s['assists'] ?? 0) },
+          { label: 'REB', value: Math.round(s['avgRebounds'] ?? s['rebounds'] ?? 0) },
+        ];
+      case 'football':
+        if (['QB'].includes(player.position))
+          return [
+            { label: 'YDS', value: s['passingYards'] ?? 0, highlight: true },
+            { label: 'TD', value: s['passingTouchdowns'] ?? 0 },
+          ];
+        if (['RB'].includes(player.positionGroup))
+          return [
+            { label: 'YDS', value: s['rushingYards'] ?? 0, highlight: true },
+            { label: 'TD', value: s['rushingTouchdowns'] ?? 0 },
+          ];
+        return [{ label: 'G', value: s['gamesPlayed'] ?? 0 }];
+      case 'baseball':
+        if (player.positionGroup === 'Lanzador')
+          return [
+            { label: 'ERA', value: +(s['ERA'] ?? s['era'] ?? 0).toFixed(2), highlight: true },
+            { label: 'K', value: s['strikeouts'] ?? 0 },
+          ];
+        return [
+          { label: 'AVG', value: +(s['battingAverage'] ?? s['avg'] ?? 0).toFixed(3), highlight: true },
+          { label: 'HR', value: s['homeRuns'] ?? 0 },
+          { label: 'RBI', value: s['RBI'] ?? s['rbi'] ?? 0 },
+        ];
+      default: // soccer
+        return [
+          { label: 'PJ', value: s['appearances'] ?? 0 },
+          { label: 'G', value: s['totalGoals'] ?? s['goals'] ?? 0, highlight: true },
+          { label: 'A', value: s['goalAssists'] ?? s['assists'] ?? 0 },
+        ];
+    }
+  }
+
+  getPositionColor(group: string): string {
+    const map: Record<string, string> = {
+      'Portero': '#f59e0b', 'Defensa': '#3b82f6',
+      'Mediocampista': '#8b5cf6', 'Delantero': '#ef4444',
+      'Base': '#f59e0b', 'Escolta': '#3b82f6',
+      'Alero': '#8b5cf6', 'Ala-Pívot': '#ec4899', 'Pívot': '#14b8a6',
+      'QB': '#ef4444', 'RB': '#f59e0b', 'WR': '#3b82f6',
+      'TE': '#8b5cf6', 'OL': '#6b7280', 'DL': '#dc2626',
+      'LB': '#059669', 'DB': '#0ea5e9', 'K/P': '#94a3b8',
+      'Lanzador': '#ef4444', 'Receptor': '#f59e0b',
+      'Cuadro': '#3b82f6', 'Outfield': '#8b5cf6', 'DH': '#14b8a6',
+    };
+    return map[group] || '#6b7280';
+  }
+
+  getSportLoadingStatus(sport: string): 'loading' | 'done' | 'partial' | 'idle' {
+    const keys = Object.keys(this.leagueStatus).filter(k => k.startsWith(sport + '__'));
+    if (!keys.length) return 'idle';
+    const statuses = keys.map(k => this.leagueStatus[k]);
+    if (statuses.every(s => s === 'done')) return 'done';
+    if (statuses.some(s => s === 'loading')) return 'loading';
+    return 'partial';
+  }
+
+  getInitials(name: string): string {
+    return name.split(' ').filter(w => w.length > 0).slice(0, 2).map(w => w[0].toUpperCase()).join('');
+  }
+
+  getInitialsBg(color: string): string {
+    const hex = color.replace('#', '');
+    return `linear-gradient(135deg, #${hex}55, #${hex}11)`;
   }
 
   openEspnProfile(player: EspnPlayer): void {
     if (player.espnUrl) window.open(player.espnUrl, '_blank');
   }
 
-  getPositionColor(position: string): string {
-    const map: Record<string, string> = {
-      'Portero': '#f59e0b',
-      'Defensa': '#3b82f6',
-      'Mediocampista': '#8b5cf6',
-      'Delantero': '#ef4444',
-    };
-    return map[position] || '#6b7280';
-  }
+  trackById(_: number, p: EspnPlayer): string { return p.id; }
 
-  getPositionAbbrev(position: string): string {
-    const map: Record<string, string> = {
-      'Portero': 'POR',
-      'Defensa': 'DEF',
-      'Mediocampista': 'MED',
-      'Delantero': 'DEL',
-    };
-    return map[position] || '?';
-  }
-
-  getLeagueLabel(slug: string): string {
-    return this.leagues.find(l => l.slug === slug)?.name ?? slug;
-  }
-
-  get skeletonCount(): number[] {
-    return Array(24).fill(0);
-  }
-
-  private bgCache = new Map<string, string>();
-
-  getInitialsBg(color: string): string {
-    if (!this.bgCache.has(color)) {
-      const hex = color.replace('#', '');
-      this.bgCache.set(color, `linear-gradient(135deg, #${hex}44, #${hex}11)`);
-    }
-    return this.bgCache.get(color)!;
-  }
-
-  getInitials(name: string): string {
-    return name
-      .split(' ')
-      .filter(w => w.length > 0)
-      .slice(0, 2)
-      .map(w => w[0].toUpperCase())
-      .join('');
-  }
-
-  onPhotoError(event: Event, player: EspnPlayerEx): void {
-    // Clear the broken photo so initials fallback renders
-    player.photo = '';
+  onImgError(event: Event): void {
     (event.target as HTMLImageElement).style.display = 'none';
   }
 
-  trackById(_: number, p: EspnPlayerEx): string {
-    return p.id;
-  }
-
-  onImgError(event: Event): void {
+  onPhotoError(event: Event, player: EspnPlayer): void {
+    player.photo = '';
     (event.target as HTMLImageElement).style.display = 'none';
   }
 }
