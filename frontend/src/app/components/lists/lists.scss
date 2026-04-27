@@ -1,0 +1,81 @@
+/* lists.scss */
+
+/* Modal styling */
+.modal-backdrop-custom {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+    z-index: 1050;
+
+    .modal-box {
+        width: 100%;
+        max-width: 500px;
+        animation: scaleUp 0.3s ease-out forwards;
+        background-color: #1a1e23; /* slightly lighter dark */
+    }
+}
+
+@keyframes scaleUp {
+    0% {
+        transform: scale(0.95);
+        opacity: 0;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Form Styles */
+.bg-darker {
+    background-color: #0f1217 !important;
+}
+
+.text-white::placeholder {
+    color: rgba(255, 255, 255, 0.3) !important;
+}
+
+.focus-primary:focus {
+    border-color: #00ff88;
+    box-shadow: 0 0 0 0.25rem rgba(0, 255, 136, 0.25);
+    outline: 0;
+}
+
+.letter-spacing-1 {
+    letter-spacing: 1px;
+}
+
+/* Card interactions */
+.hover-lift {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.list-card:hover .hover-lift {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Delete Button */
+.list-delete-btn {
+    opacity: 0;
+    transition: opacity 0.2s ease, color 0.2s ease;
+    z-index: 10;
+}
+
+.list-card:hover .list-delete-btn {
+    opacity: 0.5;
+}
+
+.list-delete-btn:hover {
+    opacity: 1 !important;
+    color: #ff4d4d !important;
+}
+
+/* Add custom margin for the header if needed */
+h1.display-5 {
+    letter-spacing: -2px;
+}

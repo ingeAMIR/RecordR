@@ -1,0 +1,421 @@
+<div class="container py-5">
+    <!-- Hero Section -->
+    <div class="row align-items-center mb-5 pb-5">
+        <div class="col-lg-6">
+            <div class="badge bg-dark border border-secondary text-primary mb-3 rounded-pill px-3 py-2 fw-bold small">
+                <i class="bi bi-stars me-1"></i> LA RED SOCIAL DEPORTIVA
+            </div>
+            <h1 class="display-3 fw-black text-white lh-1 mb-4">
+                Tu vida deportiva, <br>
+                <span class="text-primary">finalmente registrada.</span>
+            </h1>
+            <p class="lead text-secondary mb-4" style="max-width: 450px;">
+                Únete a la comunidad donde las opiniones importan.
+                Califica partidos, observa jugadores y compite con tus predicciones.
+            </p>
+            <div class="d-flex gap-3">
+                <a routerLink="/register"
+                    class="btn btn-primary btn-lg rounded-pill px-5 fw-bold shadow-glow">Comenzar</a>
+                <a routerLink="/matches" class="btn btn-outline-light btn-lg rounded-pill px-5 fw-bold">Explorar</a>
+            </div>
+
+            <div class="mt-5 d-flex gap-4">
+                <div class="text-start">
+                    <h4 class="fw-black text-white m-0">2M+</h4>
+                    <small class="text-muted text-uppercase fw-bold text-xs">Partidos Registrados</small>
+                </div>
+                <div class="vr bg-secondary opacity-50"></div>
+                <div class="text-start">
+                    <h4 class="fw-black text-white m-0">500k</h4>
+                    <small class="text-muted text-uppercase fw-bold text-xs">Fans Activos</small>
+                </div>
+                <div class="vr bg-secondary opacity-50"></div>
+                <div class="text-start">
+                    <h4 class="fw-black text-white m-0">10k+</h4>
+                    <small class="text-muted text-uppercase fw-bold text-xs">Ligas Cubiertas</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6 d-none d-lg-block position-relative">
+            <!-- Simulated App Interface Floating Elements -->
+            <div class="card bg-dark border-0 shadow-lg p-3 rounded-4 position-absolute float-card"
+                style="width: 280px; top: 0; right: 20%; transform: rotate(-6deg); z-index: 1;">
+                <div class="d-flex align-items-center gap-3 border-bottom border-light border-opacity-10 pb-3 mb-3">
+                    <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center"
+                        style="width: 40px; height: 40px;">
+                        <i class="bi bi-person-fill text-black"></i>
+                    </div>
+                    <div>
+                        <h6 class="text-white m-0 fw-bold">Amir Goyri</h6>
+                        <small class="text-muted">Acabo de ver El Clásico</small>
+                    </div>
+                </div>
+                <div class="text-warning mb-2">★★★★★</div>
+                <p class="text-light small m-0">"Clase maestra absoluta de Vini Jr. El ritmo es irreal."</p>
+            </div>
+
+            <div class="card bg-dark border border-primary shadow-glow p-0 rounded-4 position-absolute overflow-hidden float-card-delayed"
+                style="width: 300px; top: 60px; right: 0; transform: rotate(3deg); z-index: 2;">
+                <div class="bg-primary p-2 text-center text-black fw-bold small">SELECCIÓN DEL DÍA</div>
+                <div class="p-3 text-center">
+                    <div class="d-flex justify-content-between align-items-center mb-3 text-white fw-bold">
+                        <span>LAL</span>
+                        <span class="text-muted">vs</span>
+                        <span>BOS</span>
+                    </div>
+                    <button class="btn btn-light w-100 rounded-pill fw-bold btn-sm">Lakers -3.5</button>
+                </div>
+            </div>
+
+            <div class="card bg-dark border-0 shadow-lg p-3 rounded-4 position-absolute float-card-slow"
+                style="width: 240px; top: 200px; right: 12%; transform: rotate(-2deg); z-index: 0; opacity: 0.8;">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <i class="bi bi-fire text-warning"></i>
+                    <small class="text-primary fw-bold text-uppercase text-xs">Racha activa</small>
+                </div>
+                <div class="d-flex gap-1">
+                    <span class="badge bg-primary text-black">L</span>
+                    <span class="badge bg-primary text-black">M</span>
+                    <span class="badge bg-primary text-black">X</span>
+                    <span class="badge bg-primary text-black">J</span>
+                    <span class="badge bg-secondary bg-opacity-25 text-muted">V</span>
+                </div>
+                <small class="text-muted d-block mt-2">4 días seguidos · <span
+                        class="text-primary fw-bold">¡Sigue así!</span></small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Trending Section -->
+    <div class="section-divider"></div>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3 py-2 mb-2">
+                <i class="bi bi-fire me-1"></i> TENDENCIAS
+            </span>
+            <h3 class="fw-black text-white m-0 mt-2">Tendencias de la Semana</h3>
+            <p class="text-muted small m-0">Los partidos más comentados por la comunidad</p>
+        </div>
+        <a routerLink="/matches" class="text-primary fw-bold text-decoration-none small hover-arrow">
+            VER TODOS <i class="bi bi-arrow-right ms-1"></i>
+        </a>
+    </div>
+
+    <!-- Loading skeleton trending -->
+    <div class="row row-cols-2 row-cols-md-4 g-4 mb-5" *ngIf="trendingLoading">
+        <div class="col" *ngFor="let i of [1,2,3,4]">
+            <div class="trending-card rounded-4 overflow-hidden shadow-lg border border-secondary border-opacity-25 skeleton-card"
+                style="aspect-ratio: 9/16;"></div>
+        </div>
+    </div>
+
+    <div class="row row-cols-2 row-cols-md-4 g-4 mb-5" *ngIf="!trendingLoading">
+        <div class="col" *ngFor="let match of trendingMatches">
+            <a [routerLink]="['/match', match.id]" class="text-decoration-none">
+                <div class="trending-card position-relative rounded-4 overflow-hidden shadow-lg h-100 cursor-pointer border border-secondary border-opacity-25"
+                    style="aspect-ratio: 9/16;">
+
+                    <!-- Background: real ESPN photo if available, else team-color gradient -->
+                    <div class="position-absolute top-0 start-0 w-100 h-100">
+                        <img *ngIf="match.imageUrl" [src]="match.imageUrl" alt=""
+                            class="w-100 h-100 object-cover">
+                        <div *ngIf="!match.imageUrl" class="w-100 h-100"
+                            [style.background]="'linear-gradient(160deg, ' + match.homeColor + 'cc 0%, #0d0d0d 45%, ' + match.awayColor + 'cc 100%)'">
+                        </div>
+                    </div>
+
+                    <!-- Dark overlay for readability -->
+                    <div class="trending-overlay position-absolute top-0 start-0 w-100 h-100"></div>
+
+                    <!-- Sport + status badge (top) -->
+                    <div class="position-absolute top-0 start-0 w-100 px-3 pt-3 d-flex justify-content-between align-items-start"
+                        style="z-index: 3;">
+                        <span class="badge bg-black bg-opacity-75 text-primary rounded-pill px-2 py-1 small fw-bold">
+                            <i class="bi {{ getSportIcon(match.sport) }} me-1"></i>{{ match.sportLabel }}
+                        </span>
+                        <span *ngIf="match.completed"
+                            class="badge bg-black bg-opacity-75 text-success rounded-pill px-2 py-1 small">FT</span>
+                        <span *ngIf="match.status === 'in'"
+                            class="badge bg-danger rounded-pill px-2 py-1 small">🔴 EN VIVO</span>
+                    </div>
+
+                    <!-- Team logos + score (center) -->
+                    <div class="position-absolute top-50 start-0 w-100 px-3 translate-middle-y"
+                        style="z-index: 3; transform: translateY(-50%);">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="text-center" style="width: 38%;">
+                                <div class="team-logo-circle mx-auto mb-1"
+                                    style="width: 56px; height: 56px; background: rgba(0,0,0,0.45); border-radius: 50%; padding: 6px;">
+                                    <img [src]="match.homeLogo" [alt]="match.homeTeam"
+                                        class="w-100 h-100 object-contain"
+                                        onerror="this.style.display='none'">
+                                </div>
+                                <small class="text-white fw-bold d-block" style="font-size: 0.65rem; letter-spacing: 0.5px;">
+                                    {{ match.homeAbbrev || match.homeTeam }}
+                                </small>
+                            </div>
+
+                            <div class="text-center" style="width: 24%;">
+                                <div *ngIf="match.completed || match.status === 'in'"
+                                    class="text-white fw-black" style="font-size: 1.3rem; line-height: 1; letter-spacing: -1px;">
+                                    {{ match.homeScore }}<span class="text-muted mx-1" style="font-size: 0.9rem;">-</span>{{ match.awayScore }}
+                                </div>
+                                <div *ngIf="!match.completed && match.status !== 'in'"
+                                    class="text-white fw-black opacity-60" style="font-size: 1rem;">VS</div>
+                            </div>
+
+                            <div class="text-center" style="width: 38%;">
+                                <div class="team-logo-circle mx-auto mb-1"
+                                    style="width: 56px; height: 56px; background: rgba(0,0,0,0.45); border-radius: 50%; padding: 6px;">
+                                    <img [src]="match.awayLogo" [alt]="match.awayTeam"
+                                        class="w-100 h-100 object-contain"
+                                        onerror="this.style.display='none'">
+                                </div>
+                                <small class="text-white fw-bold d-block" style="font-size: 0.65rem; letter-spacing: 0.5px;">
+                                    {{ match.awayAbbrev || match.awayTeam }}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- League + title + rating (bottom) -->
+                    <div class="position-absolute bottom-0 start-0 w-100 p-3 bg-gradient-to-t-black"
+                        style="z-index: 3;">
+                        <small class="text-primary fw-bold text-uppercase d-block mb-1"
+                            style="font-size: 0.6rem; letter-spacing: 0.8px;">{{ match.league }}</small>
+                        <h6 class="text-white fw-bold m-0 lh-sm" style="font-size: 0.8rem;">
+                            {{ match.homeTeam }} vs {{ match.awayTeam }}
+                        </h6>
+                        <div class="mt-2 d-flex gap-2 align-items-center">
+                            <span class="badge bg-primary text-black fw-bold" style="font-size: 0.65rem;">
+                                {{ match.rating }}
+                            </span>
+                            <div class="text-warning" style="font-size: 0.7rem;">
+                                <span *ngFor="let star of getStars(match.rating)">★</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- How It Works Section -->
+    <div class="section-divider"></div>
+    <div class="text-center mb-5">
+        <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3 py-2 mb-2">
+            <i class="bi bi-rocket-takeoff me-1"></i> CÓMO FUNCIONA
+        </span>
+        <h2 class="fw-black text-white mt-3 mb-2">Tres pasos para empezar</h2>
+        <p class="text-muted mx-auto" style="max-width: 500px;">
+            Únete a la conversación deportiva más grande del mundo en minutos
+        </p>
+    </div>
+
+    <div class="row g-4 mb-5 pb-5">
+        <div class="col-md-4" *ngFor="let step of howItWorks; let i = index">
+            <div
+                class="how-it-works-card text-center p-4 rounded-4 border border-secondary border-opacity-25 h-100 position-relative">
+                <div class="step-number position-absolute top-0 start-50 translate-middle">
+                    <span
+                        class="badge bg-primary text-black rounded-circle fw-black d-flex align-items-center justify-content-center"
+                        style="width: 36px; height: 36px;">{{ i + 1 }}</span>
+                </div>
+                <div class="step-icon mb-3 mt-3">
+                    <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center"
+                        style="width: 70px; height: 70px;">
+                        <i class="bi {{ step.icon }} text-primary display-6"></i>
+                    </div>
+                </div>
+                <h5 class="fw-bold text-white mb-2">{{ step.title }}</h5>
+                <p class="text-muted small m-0">{{ step.description }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Live Activity Section -->
+    <div class="section-divider"></div>
+    <div class="row align-items-center mb-5 pb-5">
+        <div class="col-lg-5">
+            <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3 py-2 mb-2">
+                <i class="bi bi-broadcast me-1"></i> ACTIVIDAD EN VIVO
+            </span>
+            <h2 class="fw-black text-white mt-3 mb-3">La comunidad nunca duerme</h2>
+            <p class="text-muted mb-4">
+                Observa en tiempo real lo que otros fans están calificando, debatiendo y prediciendo.
+                Cada segundo hay una nueva reseña.
+            </p>
+            <div class="d-flex gap-3">
+                <div class="live-stat p-3 rounded-3 border border-secondary border-opacity-25 text-center flex-fill">
+                    <div class="text-primary fw-black h4 m-0">847</div>
+                    <small class="text-muted text-uppercase text-xs fw-bold">En Vivo Ahora</small>
+                </div>
+                <div class="live-stat p-3 rounded-3 border border-secondary border-opacity-25 text-center flex-fill">
+                    <div class="text-primary fw-black h4 m-0">12.4k</div>
+                    <small class="text-muted text-uppercase text-xs fw-bold">Reseñas Hoy</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-7 mt-4 mt-lg-0">
+            <div class="activity-feed">
+                <div class="activity-item d-flex gap-3 align-items-start p-3 rounded-3 mb-3"
+                    *ngFor="let activity of recentActivity">
+                    <div class="activity-avatar bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                        style="width: 44px; height: 44px;">
+                        <i class="bi bi-person-fill text-primary"></i>
+                    </div>
+                    <div class="flex-grow-1 min-width-0">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="fw-bold text-white small">{{ activity.user }}</span>
+                            <small class="text-muted text-xs">{{ activity.time }}</small>
+                        </div>
+                        <p class="text-muted small m-0 mb-1">{{ activity.action }}</p>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="badge bg-dark border border-secondary border-opacity-50 text-muted small">{{
+                                activity.match }}</span>
+                            <span class="text-warning text-xs">{{ activity.stars }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Players Section -->
+    <div class="section-divider"></div>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3 py-2 mb-2">
+                <i class="bi bi-trophy me-1"></i> JUGADORES
+            </span>
+            <h3 class="fw-black text-white m-0 mt-2">Jugadores Más Seguidos</h3>
+            <p class="text-muted small m-0">Los jugadores que más acaparan la atención</p>
+        </div>
+        <a routerLink="/players" class="text-primary fw-bold text-decoration-none small hover-arrow">
+            VER TODOS <i class="bi bi-arrow-right ms-1"></i>
+        </a>
+    </div>
+
+    <!-- Loading Skeleton -->
+    <div class="row row-cols-2 row-cols-md-3 row-cols-lg-6 g-3 mb-5 pb-5" *ngIf="playersLoading">
+        <div class="col" *ngFor="let i of [1,2,3,4,5,6]">
+            <div class="player-card text-center p-3 rounded-4 border border-secondary border-opacity-25 h-100">
+                <div class="skeleton-circle mx-auto mb-3" style="width: 80px; height: 80px;"></div>
+                <div class="skeleton-text mx-auto mb-2" style="width: 70%; height: 14px;"></div>
+                <div class="skeleton-text mx-auto mb-2" style="width: 50%; height: 10px;"></div>
+                <div class="skeleton-text mx-auto" style="width: 60%; height: 20px; border-radius: 20px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Player Cards -->
+    <div class="row row-cols-2 row-cols-md-3 row-cols-lg-6 g-3 mb-5 pb-5" *ngIf="!playersLoading">
+        <div class="col" *ngFor="let player of topPlayers">
+            <div
+                class="player-card text-center p-3 rounded-4 border border-secondary border-opacity-25 h-100 cursor-pointer">
+                <div class="player-avatar mx-auto mb-3 rounded-circle overflow-hidden"
+                    style="width: 80px; height: 80px; border: 2px solid rgba(0, 224, 84, 0.3);">
+                    <img [src]="player.image" [alt]="player.name"
+                        class="w-100 h-100 object-cover" />
+                </div>
+                <h6 class="text-white fw-bold m-0 mb-1 small">{{ player.name }}</h6>
+                <small class="text-muted text-xs d-block mb-1">{{ player.team }}</small>
+                <small class="text-muted text-xs d-block mb-2 opacity-75">
+                    <i class="bi bi-geo-alt-fill me-1 small"></i>{{ player.nationality }}
+                </small>
+                <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill small">{{ player.position }}</span>
+                <div class="mt-2">
+                    <small class="text-muted text-xs">{{ player.followers }} seguidores</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Popular Lists Section -->
+    <div class="section-divider"></div>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3 py-2 mb-2">
+                <i class="bi bi-collection me-1"></i> LISTAS
+            </span>
+            <h3 class="fw-black text-white m-0 mt-2">Listas Populares</h3>
+            <p class="text-muted small m-0">Colecciones creadas por la comunidad</p>
+        </div>
+        <a routerLink="/lists" class="text-primary fw-bold text-decoration-none small hover-arrow">
+            VER TODAS <i class="bi bi-arrow-right ms-1"></i>
+        </a>
+    </div>
+
+    <div class="row g-4 mb-5 pb-5">
+        <div class="col-md-4" *ngFor="let list of popularLists">
+            <div class="list-card p-4 rounded-4 border border-secondary border-opacity-25 h-100 cursor-pointer">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="bg-primary bg-opacity-10 rounded-3 d-flex align-items-center justify-content-center"
+                        style="width: 48px; height: 48px;">
+                        <i class="bi {{ list.icon }} text-primary fs-4"></i>
+                    </div>
+                    <div>
+                        <h6 class="text-white fw-bold m-0">{{ list.title }}</h6>
+                        <small class="text-muted text-xs">por {{ list.author }}</small>
+                    </div>
+                </div>
+                <p class="text-muted small mb-3">{{ list.description }}</p>
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex gap-2">
+                        <span class="badge bg-dark border border-secondary border-opacity-50 text-muted">
+                            <i class="bi bi-heart-fill text-danger me-1 small"></i>{{ list.likes }}
+                        </span>
+                        <span class="badge bg-dark border border-secondary border-opacity-50 text-muted">
+                            <i class="bi bi-eye-fill me-1 small"></i>{{ list.views }}
+                        </span>
+                    </div>
+                    <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill">{{ list.items }}
+                        partidos</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA Section -->
+    <div class="cta-section rounded-4 p-5 text-center mb-5 position-relative overflow-hidden">
+        <div class="cta-glow"></div>
+        <div class="position-relative" style="z-index: 2;">
+            <i class="bi bi-stars display-3 text-primary mb-3 d-block cta-icon"></i>
+            <h2 class="fw-black text-white mb-3">¿Listo para unirte?</h2>
+            <p class="text-muted mx-auto mb-4" style="max-width: 500px;">
+                Miles de fans ya están registrando su vida deportiva. No te quedes fuera
+                de la conversación más grande del deporte.
+            </p>
+            <div class="d-flex gap-3 justify-content-center flex-wrap">
+                <a routerLink="/register"
+                    class="btn btn-primary btn-lg rounded-pill px-5 fw-bold shadow-glow">
+                    <i class="bi bi-rocket-takeoff me-2"></i>Crear Cuenta Gratis
+                </a>
+                <a routerLink="/matches"
+                    class="btn btn-outline-light btn-lg rounded-pill px-5 fw-bold">
+                    <i class="bi bi-compass me-2"></i>Explorar Partidos
+                </a>
+            </div>
+            <div class="mt-4 d-flex justify-content-center gap-4 text-muted small">
+                <span><i class="bi bi-check-circle-fill text-primary me-1"></i>100% Gratis</span>
+                <span><i class="bi bi-check-circle-fill text-primary me-1"></i>Sin anuncios</span>
+                <span><i class="bi bi-check-circle-fill text-primary me-1"></i>Comunidad activa</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="text-center py-4 mt-5 border-top border-secondary border-opacity-25">
+        <div class="d-flex justify-content-center gap-4 mb-3">
+            <a href="#" class="text-muted hover-primary"><i class="bi bi-twitter-x fs-5"></i></a>
+            <a href="#" class="text-muted hover-primary"><i class="bi bi-instagram fs-5"></i></a>
+            <a href="#" class="text-muted hover-primary"><i class="bi bi-discord fs-5"></i></a>
+            <a href="#" class="text-muted hover-primary"><i class="bi bi-github fs-5"></i></a>
+        </div>
+        <p class="text-muted small m-0">
+            © 2026 <span class="text-primary fw-bold">RecordR</span>. Todos los derechos reservados.
+        </p>
+    </footer>
+</div>

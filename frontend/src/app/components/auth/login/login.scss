@@ -1,0 +1,17 @@
+.bg-dots {
+    background-color: #14181c;
+    background-image: radial-gradient(#2c3440 1px, transparent 1px);
+    background-size: 24px 24px;
+}
+
+.shadow-2xl {
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+.focus-primary:focus {
+    border-color: var(--xports-primary) !important;
+}
+
+.form-floating>.form-control:focus~label {
+    color: var(--xports-primary) !important;
+}

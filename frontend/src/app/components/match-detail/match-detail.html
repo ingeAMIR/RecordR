@@ -1,0 +1,188 @@
+<div class="container py-5 match-detail-screen">
+  <!-- Top Nav -->
+  <div class="mb-4">
+    <a routerLink="/matches" class="btn btn-outline-secondary rounded-pill btn-sm d-inline-flex align-items-center text-white border-secondary">
+      <i class="bi bi-arrow-left me-2"></i> Volver a Partidos
+    </a>
+  </div>
+
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status"></div>
+    <p class="mt-3 text-muted fw-bold">Cargando partido...</p>
+  </div>
+
+  <div *ngIf="!loading && !match" class="text-center py-5">
+    <i class="bi bi-exclamation-triangle display-3 text-warning mb-3 d-block"></i>
+    <p class="text-white fw-bold">No se encontró el partido o ya no está disponible.</p>
+  </div>
+
+  <div *ngIf="match" class="row gx-lg-5">
+    <!-- Match Info Left Column -->
+    <div class="col-lg-5 mb-5 mb-lg-0">
+      <div class="match-detail-card card glass-card border-0 rounded-4 overflow-hidden position-relative">
+        <!-- Colored Header -->
+        <div class="match-banner p-4 text-center d-flex align-items-center justify-content-center flex-column position-relative z-1" [style.background]="'linear-gradient(135deg, ' + match.homeColor + ' 0%, #1a1a1a 50%, ' + match.awayColor + ' 100%)'">
+          <div class="league-badge mb-4 bg-dark bg-opacity-75 px-3 py-1 rounded-pill d-inline-flex align-items-center gap-2 shadow-sm border border-secondary border-opacity-50">
+            <img *ngIf="match.leagueLogo" [src]="match.leagueLogo" alt="" class="league-logo-sm">
+            <span class="text-white small fw-bold">{{ match.league }}</span>
+          </div>
+
+          <div class="d-flex align-items-center justify-content-between w-100 gap-3 mt-2">
+            <div class="team-col text-center flex-1">
+              <img [src]="match.homeLogo" class="team-logo-lg mb-3 shadow spin-on-hover">
+              <h5 class="text-white fw-bold mb-0 text-shadow px-2">{{ match.homeTeam }}</h5>
+            </div>
+            
+            <div class="score-col flex-shrink-0 text-center text-white d-flex flex-column align-items-center">
+              <div class="fs-1 fw-black text-shadow tracking-tight" *ngIf="match.completed || match.status === 'in'">
+                {{ match.homeScore }} - {{ match.awayScore }}
+              </div>
+              <div class="fs-2 fw-black text-shadow tracking-tight" *ngIf="!match.completed && match.status !== 'in'">
+                VS
+              </div>
+              
+              <span class="badge bg-danger rounded-pill mt-2 px-3 py-2 shadow-sm pulse-badge" *ngIf="match.status === 'in'">
+                <i class="bi bi-record-circle me-1"></i> EN VIVO
+              </span>
+              <span class="badge bg-secondary rounded-pill mt-2 px-3 py-2 shadow-sm" *ngIf="match.completed">FINALIZADO</span>
+              <span class="badge bg-primary rounded-pill mt-2 px-3 py-2 shadow-sm" *ngIf="match.status === 'pre'">PRÓXIMO</span>
+            </div>
+
+            <div class="team-col text-center flex-1">
+              <img [src]="match.awayLogo" class="team-logo-lg mb-3 shadow spin-on-hover">
+              <h5 class="text-white fw-bold mb-0 text-shadow px-2">{{ match.awayTeam }}</h5>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-body p-4 bg-dark text-white border-top border-secondary border-opacity-25">
+          <div class="d-flex justify-content-between align-items-center mb-4 text-secondary pb-3 border-bottom border-secondary border-opacity-50">
+            <div class="d-flex align-items-center gap-2">
+               <i class="bi bi-calendar-event opacity-75"></i>
+               <span class="fw-medium">{{ match.date | date:'dd MMM, HH:mm' }}</span>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+               <i class="bi bi-geo-alt opacity-75"></i>
+               <span class="fw-medium text-truncate" style="max-width: 150px;">{{ match.venue || 'Por definir' }}</span>
+            </div>
+          </div>
+          
+          <div class="d-flex align-items-center justify-content-between bg-black bg-opacity-50 rounded-4 p-3 border border-secondary border-opacity-25 shadow-sm min-h-60">
+             
+             <!-- Static State -->
+             <ng-container *ngIf="!showRatingInput">
+               <div class="d-flex align-items-center gap-2">
+                  <div class="rating-stars text-warning fs-5">{{ getStars(match.rating) }}</div>
+                  <div class="fw-bold fs-5 text-white">{{ match.rating }}</div>
+               </div>
+               <button *ngIf="!userRated" class="btn btn-outline-primary btn-sm rounded-pill fw-bold hover-lift" (click)="showRatingInput = true">Calificar</button>
+               <span *ngIf="userRated" class="badge bg-success bg-opacity-25 text-success rounded-pill px-3 py-2 border border-success border-opacity-50 d-flex align-items-center gap-1 shadow-sm">
+                 <i class="bi bi-check2-circle fs-6"></i> Calificado ({{userRatingModel}})
+               </span>
+             </ng-container>
+
+             <!-- Interactive Rating Input State -->
+             <div class="w-100 d-flex justify-content-between align-items-center slide-in px-2" *ngIf="showRatingInput">
+                <span class="text-white fw-bold small me-3">Tu Voto:</span>
+                <div class="d-flex align-items-center gap-2 text-warning fs-3 rating-selector" (mouseleave)="hoverRating = 0">
+                    <i class="bi cursor-pointer transition-transform" *ngFor="let star of [1,2,3,4,5]" 
+                       [ngClass]="(hoverRating >= star) ? 'bi-star-fill' : 'bi-star'"
+                       (mouseenter)="hoverRating = star"
+                       (click)="rateMatch(star)"></i>
+                </div>
+                <button class="btn btn-sm btn-link text-secondary hover-white text-decoration-none ms-auto p-0" (click)="showRatingInput = false"><i class="bi bi-x-lg fs-5"></i></button>
+             </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Conversation Right Column -->
+    <div class="col-lg-7 d-flex flex-column h-100" style="min-height: 600px;">
+      <div class="conversation-container d-flex flex-column h-100 bg-dark rounded-4 p-4 shadow-lg border border-secondary border-opacity-25 relative-overflow">
+        <h3 class="fw-bold mb-4 text-white d-flex align-items-center pb-3 border-bottom border-secondary border-opacity-50">
+          <i class="bi bi-chat-square-text-fill me-3 text-primary fs-4"></i> 
+          Conversación
+        </h3>
+
+        <!-- Comments List -->
+        <div class="comments-list flex-grow-1 overflow-auto pe-3 mb-4 d-flex flex-column gap-3">
+          
+          <div *ngIf="loadingOpinions" class="text-center py-5 my-auto">
+            <div class="spinner-border text-primary" role="status"></div>
+            <p class="mt-2 text-muted fw-bold">Cargando conversación...</p>
+          </div>
+
+          <ng-container *ngIf="!loadingOpinions">
+             <div class="comment-card bg-black bg-opacity-50 rounded-4 p-3 d-flex gap-3 position-relative slide-in" *ngFor="let opinion of opinions; let i = index" [style.animation-delay]="i * 100 + 'ms'">
+               <img [src]="opinion.avatar" class="rounded-circle avatar-sm shadow border border-secondary border-opacity-50">
+               <div class="w-100">
+                 <div class="d-flex justify-content-between align-items-center mb-2">
+                   <h6 class="mb-0 text-white fw-bold">{{ opinion.user }}</h6>
+                   <span class="text-secondary small fw-medium">{{ (opinion.time | date:'shortTime') || opinion.time }}</span>
+                 </div>
+                 <p class="text-light mb-3 text-break fs-6 lh-base">{{ opinion.text }}</p>
+                 <div class="d-flex align-items-center gap-4">
+                   <button class="btn btn-link text-decoration-none p-0 btn-like d-flex align-items-center gap-2 fw-medium transition-colors" [ngClass]="opinion.likedByMe ? 'text-danger' : 'text-secondary hover-primary'" (click)="likeOpinion(opinion)">
+                     <i class="bi" [ngClass]="opinion.likedByMe ? 'bi-heart-fill' : 'bi-heart-fill'"></i>
+                     <span>{{ opinion.likes }}</span>
+                   </button>
+                   <button class="btn btn-link text-decoration-none text-secondary p-0 d-flex align-items-center gap-2 fw-medium hover-primary" (click)="toggleReplyInput(opinion)">
+                     <i class="bi bi-reply-fill"></i> Responder
+                   </button>
+                 </div>
+                 
+                 <!-- Reply Input Box -->
+                 <div class="mt-3 slide-in" *ngIf="opinion.showReplyInput">
+                   <div class="d-flex align-items-center gap-2 bg-dark bg-opacity-75 rounded-pill p-1 border border-secondary border-opacity-50">
+                     <input type="text" class="form-control bg-transparent border-0 text-white shadow-none ms-2 fs-6" placeholder="Escribe tu respuesta..." [(ngModel)]="opinion.newReplyText" (keyup.enter)="submitReply(opinion)">
+                     <button class="btn btn-sm btn-primary rounded-pill px-3 fw-bold" (click)="submitReply(opinion)" [disabled]="!opinion.newReplyText?.trim()">Enviar</button>
+                   </div>
+                 </div>
+
+                 <!-- Nested Replies -->
+                 <div class="mt-3 ms-3 ms-md-4 ps-3 border-start border-secondary border-opacity-50 d-flex flex-column gap-3" *ngIf="opinion.replies && opinion.replies.length > 0">
+                    <div class="d-flex gap-2 position-relative slide-in" *ngFor="let reply of opinion.replies">
+                      <img [src]="reply.avatar" class="rounded-circle shadow border border-secondary border-opacity-50 mt-1" style="width: 32px; height: 32px; object-fit: cover;">
+                      <div class="w-100 bg-dark bg-opacity-25 p-2 rounded-3 border border-secondary border-opacity-25">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                          <h6 class="mb-0 text-white fw-bold" style="font-size: 0.85rem;">{{ reply.user }}</h6>
+                          <span class="text-secondary small fw-medium" style="font-size: 0.75rem;">{{ (reply.time | date:'shortTime') || reply.time }}</span>
+                        </div>
+                        <p class="text-light mb-2 text-break lh-base" style="font-size: 0.85rem;">{{ reply.text }}</p>
+                        <div class="d-flex align-items-center gap-3">
+                          <button class="btn btn-link text-decoration-none p-0 btn-like d-flex align-items-center gap-1 transition-colors" [ngClass]="reply.likedByMe ? 'text-danger' : 'text-secondary hover-primary'" (click)="likeOpinion(reply)" style="font-size: 0.8rem;">
+                            <i class="bi" [ngClass]="reply.likedByMe ? 'bi-heart-fill' : 'bi-heart-fill'"></i>
+                            <span>{{ reply.likes }}</span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                 </div>
+
+               </div>
+             </div>
+             
+             <div *ngIf="opinions.length === 0" class="text-center py-5 text-muted border border-secondary border-opacity-25 border-dashed rounded-4 my-auto mx-3">
+               <i class="bi bi-chat-dots display-3 mb-3 d-block opacity-50"></i>
+               <span class="fw-medium">Sé el primero en opinar sobre este partido.</span>
+             </div>
+          </ng-container>
+        </div>
+
+        <!-- Add Comment Input -->
+        <div class="comment-input-area mt-auto pt-3 border-top border-secondary border-opacity-50">
+          <div class="p-2 bg-black bg-opacity-50 rounded-pill shadow-sm border border-secondary border-opacity-50 d-flex align-items-center gap-2 focus-ring-container transition-all">
+            <div class="ps-3 pe-2 text-primary opacity-75 d-none d-sm-block">
+                <i class="bi bi-pencil-fill"></i>
+            </div>
+            <input type="text" class="form-control bg-transparent border-0 text-white shadow-none placeholder-gray flex-grow-1 header-input" placeholder="Añade tu opinión sobre este partidazo..." [(ngModel)]="newOpinion" (keyup.enter)="addOpinion()">
+            <button class="btn btn-primary rounded-circle d-flex align-items-center justify-content-center btn-send flex-shrink-0 shadow-sm" [disabled]="!newOpinion.trim()" (click)="addOpinion()">
+              <i class="bi bi-send-fill ms-1"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

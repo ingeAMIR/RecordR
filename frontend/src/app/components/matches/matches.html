@@ -1,0 +1,182 @@
+<div class="container py-5">
+    <!-- Header with Filter Bar -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
+        <div>
+            <h1 class="display-5 fw-black text-white mb-1">Partidos</h1>
+            <p class="text-secondary m-0">Resultados en tiempo real desde ESPN · Califica y comenta los mejores
+                encuentros.</p>
+        </div>
+
+        <div class="p-1 rounded-pill bg-dark border border-secondary d-flex gap-1 shadow-sm flex-shrink-0">
+            <button class="btn btn-sm rounded-pill px-3 fw-bold"
+                [ngClass]="activeFilter === 'all' ? 'active-filter' : 'btn-link text-decoration-none text-muted hover-white'"
+                (click)="filterByStatus('all')">Todos</button>
+            <button class="btn btn-sm rounded-pill px-3 fw-bold"
+                [ngClass]="activeFilter === 'completed' ? 'active-filter' : 'btn-link text-decoration-none text-muted hover-white'"
+                (click)="filterByStatus('completed')">Finalizados</button>
+            <button class="btn btn-sm rounded-pill px-3 fw-bold"
+                [ngClass]="activeFilter === 'live' ? 'active-filter' : 'btn-link text-decoration-none text-muted hover-white'"
+                (click)="filterByStatus('live')">En Vivo</button>
+            <button class="btn btn-sm rounded-pill px-3 fw-bold"
+                [ngClass]="activeFilter === 'upcoming' ? 'active-filter' : 'btn-link text-decoration-none text-muted hover-white'"
+                (click)="filterByStatus('upcoming')">Próximos</button>
+        </div>
+    </div>
+
+    <!-- Sport Tabs -->
+    <div class="d-flex flex-wrap gap-2 mb-3">
+        <button *ngFor="let tab of sportTabs"
+            class="btn btn-sm rounded-pill px-3 sport-tab"
+            [ngClass]="{'sport-tab-active': activeSport === tab.key}"
+            (click)="filterBySport(tab.key)">
+            <i class="bi {{ tab.icon }} me-1"></i>{{ tab.label }}
+        </button>
+    </div>
+
+    <!-- League Filter Pills -->
+    <div class="d-flex flex-wrap gap-2 mb-4" *ngIf="leagues.length > 0">
+        <button class="btn btn-sm rounded-pill px-3 league-pill"
+            [ngClass]="{'league-pill-active': activeLeague === 'all'}" (click)="filterByLeague('all')">
+            <i class="bi bi-globe2 me-1"></i> Todas las Ligas
+        </button>
+        <button *ngFor="let league of leagues" class="btn btn-sm rounded-pill px-3 league-pill"
+            [ngClass]="{'league-pill-active': activeLeague === league}" (click)="filterByLeague(league)">
+            {{ league }}
+        </button>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="loading" class="text-center py-5">
+        <div class="spinner-wrapper mb-4">
+            <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+        </div>
+        <p class="text-muted fw-bold">Cargando partidos desde ESPN...</p>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error && !loading" class="text-center py-5">
+        <i class="bi bi-exclamation-triangle display-3 text-warning mb-3 d-block"></i>
+        <p class="text-muted">No se pudieron cargar los partidos. Intenta de nuevo más tarde.</p>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!loading && !error && filteredMatches.length === 0" class="text-center py-5">
+        <i class="bi bi-calendar-x display-3 text-muted mb-3 d-block opacity-50"></i>
+        <p class="text-muted">No hay partidos disponibles con los filtros seleccionados.</p>
+    </div>
+
+    <!-- Matches Grid -->
+    <div class="row g-4" *ngIf="!loading && !error && filteredMatches.length > 0">
+        <div class="col-12 col-md-6 col-lg-4" *ngFor="let match of filteredMatches; let i = index">
+            <a class="match-card-v2 rounded-4 overflow-hidden shadow-lg h-100 text-decoration-none d-block user-select-none"
+               [routerLink]="['/match', match.id]"
+               [style.animation-delay]="i * 60 + 'ms'">
+
+                <!-- Top bar with league -->
+                <div class="match-league-bar d-flex align-items-center justify-content-between px-3 py-2">
+                    <div class="d-flex align-items-center gap-2">
+                        <img *ngIf="match.leagueLogo" [src]="match.leagueLogo" alt="" class="league-logo-sm">
+                        <span class="league-name">{{ match.league }}</span>
+                    </div>
+                    <span class="match-status-badge" [ngClass]="getStatusClass(match)">
+                        {{ getStatusText(match) }}
+                    </span>
+                </div>
+
+                <!-- Main match area -->
+                <div class="match-body p-3">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <!-- Home Team -->
+                        <div class="team-col text-center">
+                            <div class="team-logo-wrapper mb-2">
+                                <img [src]="match.homeLogo" [alt]="match.homeTeam" class="team-logo">
+                            </div>
+                            <span class="team-name">{{ match.homeTeam }}</span>
+                        </div>
+
+                        <!-- Score -->
+                        <div class="score-col text-center px-3">
+                            <div class="score-display" *ngIf="match.completed || match.status === 'in'">
+                                <span class="score-num"
+                                    [ngClass]="{'score-winner': match.homeScore > match.awayScore}">{{
+                                    match.homeScore }}</span>
+                                <span class="score-separator">-</span>
+                                <span class="score-num"
+                                    [ngClass]="{'score-winner': match.awayScore > match.homeScore}">{{
+                                    match.awayScore }}</span>
+                            </div>
+                            <div class="score-display" *ngIf="!match.completed && match.status !== 'in'">
+                                <span class="score-vs">VS</span>
+                            </div>
+                        </div>
+
+                        <!-- Away Team -->
+                        <div class="team-col text-center">
+                            <div class="team-logo-wrapper mb-2">
+                                <img [src]="match.awayLogo" [alt]="match.awayTeam" class="team-logo">
+                            </div>
+                            <span class="team-name">{{ match.awayTeam }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer info -->
+                <div class="match-footer px-3 pb-3">
+                    <!-- Headline -->
+                    <p class="match-headline" *ngIf="match.headline">
+                        <i class="bi bi-chat-quote-fill me-1"></i>
+                        {{ match.headline }}
+                    </p>
+
+                    <!-- Venue & Date -->
+                    <div class="d-flex justify-content-between align-items-center mt-2">
+                        <div class="venue-info" *ngIf="match.venue">
+                            <i class="bi bi-geo-alt-fill me-1"></i>
+                            <span>{{ match.venue }}</span>
+                        </div>
+                        <div class="match-date">
+                            {{ formatDate(match.date) }}
+                        </div>
+                    </div>
+
+                    <!-- Community Rating -->
+                    <div class="rating-bar mt-2 d-flex align-items-center justify-content-between relative" style="min-height: 28px;" *ngIf="match.completed">
+                        
+                        <ng-container *ngIf="showRatingInputFor !== match.id">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="rating-stars">{{ getStars(match.rating) }}</span>
+                                <span class="rating-value">{{ match.rating }}</span>
+                            </div>
+                            <button class="btn btn-sm btn-outline-primary rounded-pill rate-btn" *ngIf="!userRatings[match.id]" (click)="openRating($event, match.id)">
+                                <i class="bi bi-star me-1"></i> Calificar
+                            </button>
+                            <span class="badge bg-success bg-opacity-25 text-success rounded-pill px-2 py-1 border border-success border-opacity-50 slide-in" style="font-size: 0.65rem;" *ngIf="userRatings[match.id]">
+                                <i class="bi bi-check2-circle"></i> Votado ({{userRatings[match.id]}})
+                            </span>
+                        </ng-container>
+
+                        <div class="w-100 d-flex justify-content-between align-items-center slide-in" *ngIf="showRatingInputFor === match.id" (click)="$event.preventDefault(); $event.stopPropagation();">
+                           <div class="d-flex align-items-center gap-1 text-warning fs-5" (mouseleave)="hoverRating = 0">
+                               <i class="bi cursor-pointer transition-transform hover-scale" *ngFor="let star of [1,2,3,4,5]" 
+                                  [ngClass]="(hoverRating >= star) ? 'bi-star-fill' : 'bi-star'"
+                                  (mouseenter)="hoverRating = star"
+                                  (click)="rateMatch($event, match, star)"></i>
+                           </div>
+                           <button class="btn btn-sm btn-link text-secondary text-decoration-none p-0" (click)="cancelRating($event)"><i class="bi bi-x-lg" style="font-size: 0.8rem;"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- ESPN Attribution -->
+    <div class="text-center mt-5 pt-3" *ngIf="!loading">
+        <div class="espn-attribution">
+            <i class="bi bi-broadcast me-1"></i>
+            Datos proporcionados por <strong>ESPN</strong> en tiempo real
+        </div>
+    </div>
+</div>

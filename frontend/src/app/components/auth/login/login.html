@@ -1,0 +1,48 @@
+<div class="container-fluid min-vh-100 d-flex align-items-center justify-content-center bg-dots">
+    <div class="card p-4 p-md-5 border-0 shadow-2xl rounded-4"
+        style="max-width: 420px; width: 100%; background-color: #1a1d21;">
+
+        <div class="text-center mb-4">
+            <div class="d-inline-flex align-items-center justify-content-center bg-primary rounded-circle mb-3 shadow-glow"
+                style="width: 50px; height: 50px;">
+                <i class="bi bi-trophy-fill text-black fs-4"></i>
+            </div>
+            <h2 class="fw-black text-white m-0">Bienvenido de nuevo</h2>
+            <p class="text-secondary">Ingresa tus datos para acceder a tu cuenta.</p>
+        </div>
+
+        <div class="alert alert-danger" *ngIf="error">{{ error }}</div>
+
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+            <div class="form-floating mb-3">
+                <input type="email"
+                    class="form-control bg-dark border-secondary text-white rounded-3 shadow-none focus-primary"
+                    id="email" placeholder="name@example.com" formControlName="email">
+                <label for="email" class="text-muted">Correo electrónico</label>
+            </div>
+            <div class="form-floating mb-4">
+                <input type="password"
+                    class="form-control bg-dark border-secondary text-white rounded-3 shadow-none focus-primary"
+                    id="password" placeholder="Password" formControlName="password">
+                <label for="password" class="text-muted">Contraseña</label>
+            </div>
+
+            <div class="d-grid gap-2 mb-4">
+                <button type="submit" class="btn btn-primary btn-lg rounded-pill fw-bold shadow-glow" [disabled]="loginForm.invalid || loading">
+                    <span *ngIf="loading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                    Iniciar Sesión
+                </button>
+                <button type="button" (click)="onGoogleLogin()"
+                    class="btn btn-outline-light btn-lg rounded-pill fw-bold border-secondary text-secondary hover-white">
+                    <i class="bi bi-google me-2"></i> Continuar con Google
+                </button>
+            </div>
+
+            <div class="text-center">
+                <a routerLink="/register" class="text-decoration-none text-light small">
+                    ¿No tienes una cuenta? <span class="text-primary fw-bold">Regístrate</span>
+                </a>
+            </div>
+        </form>
+    </div>
+</div>

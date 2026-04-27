@@ -1,0 +1,253 @@
+/* Global Styles for Xports - Premium Dark Theme */
+
+/* 1. Define Brand Colors First */
+:root {
+    --xports-bg: #14181c;
+    --xports-card-bg: #1e2228;
+    --xports-header-bg: #1a221d;
+
+    /* Brand Colors */
+    --xports-primary: #00e054;
+    --xports-primary-hover: #00c048;
+    --xports-accent: #008f39;
+
+    /* Text Colors */
+    --xports-text: #ffffff;
+    --xports-text-secondary: #99bb9c;
+    --xports-text-muted: #566;
+
+    --xports-border: #2a332c;
+}
+
+/* 2. Override Bootstrap Variables (Must be before import) */
+$primary: #00e054;
+$secondary: #99bb9c;
+$info: #00e054;
+/* Map info to green to kill blue */
+$success: #008f39;
+$dark: #1a221d;
+$body-bg: #14181c;
+$body-color: #ffffff;
+$link-color: #99bb9c;
+$link-hover-color: #00e054;
+
+/* 3. Import Bootstrap */
+@import 'bootstrap/scss/bootstrap';
+@import 'bootstrap-icons/font/bootstrap-icons';
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    background: radial-gradient(circle at top left, #0d2b18 0%, #08100b 40%, #000000 100%);
+    background-attachment: fixed;
+    color: var(--xports-text);
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    position: relative;
+    overflow-x: hidden;
+
+    &::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        pointer-events: none;
+        background: radial-gradient(circle at 80% 20%, rgba(0, 224, 84, 0.08) 0%, transparent 40%),
+                    radial-gradient(circle at 20% 80%, rgba(0, 143, 57, 0.05) 0%, transparent 40%);
+        z-index: -1;
+        animation: pulseGlow 12s infinite alternate ease-in-out;
+    }
+}
+
+@keyframes pulseGlow {
+    0% { transform: scale(1) translate(0, 0); opacity: 0.6; }
+    50% { transform: scale(1.1) translate(-2%, 2%); opacity: 1; }
+    100% { transform: scale(1) translate(2%, -2%); opacity: 0.6; }
+}
+
+/* Stunning custom scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: #050a07;
+}
+::-webkit-scrollbar-thumb {
+    background: rgba(0, 224, 84, 0.3);
+    border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 224, 84, 0.6);
+}
+
+::selection {
+    background: rgba(0, 224, 84, 0.3);
+    color: #fff;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.brand-font {
+    font-family: 'Outfit', sans-serif;
+    color: #fff;
+    letter-spacing: -0.02em;
+}
+
+/* Ensure links are never default blue */
+a {
+    color: var(--xports-text-secondary);
+    text-decoration: none;
+    transition: color 0.15s ease-in-out;
+
+    &:hover {
+        color: var(--xports-primary);
+    }
+}
+
+/* Utility Overrides */
+.text-muted {
+    color: var(--xports-text-secondary) !important;
+}
+
+.text-info {
+    color: var(--xports-primary) !important;
+}
+
+.bg-dark {
+    background-color: var(--xports-header-bg) !important;
+}
+
+/* Custom Components */
+.navbar-xports {
+    background-color: #101216;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+
+    .navbar-brand {
+        font-family: 'Outfit', sans-serif;
+        font-weight: 900;
+        font-size: 1.75rem;
+        color: #fff;
+        letter-spacing: -1px;
+
+        span {
+            color: var(--xports-primary);
+        }
+    }
+}
+
+.nav-link {
+    color: #9cb !important;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    letter-spacing: 0.05em;
+
+    &:hover,
+    &.active {
+        color: #fff !important;
+        text-shadow: 0 0 10px rgba(0, 224, 84, 0.3);
+    }
+}
+
+.btn-primary {
+    background-color: var(--xports-primary);
+    border: none;
+    color: #05100a;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.6rem 1.5rem;
+
+    &:hover {
+        background-color: #fff;
+        color: #000;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 224, 84, 0.3);
+    }
+}
+
+.match-poster {
+    transition: transform 0.2s;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+
+    &:hover {
+        transform: scale(1.02);
+        border-color: #00e054;
+        z-index: 10;
+        box-shadow: 0 0 15px rgba(0, 224, 84, 0.2);
+    }
+}
+
+/* Input Fields */
+.form-control {
+    background-color: #1e2620;
+    border: 1px solid #3a4b40;
+    color: #fff;
+
+    &:focus {
+        background-color: #fff;
+        color: #000;
+        border-color: #00e054;
+        box-shadow: 0 0 0 0.25rem rgba(0, 224, 84, 0.25);
+    }
+}
+
+/* ==========================================================
+   ADVANCED MOUSE/POINTER INTERACTIVE EFFECTS 
+   ========================================================== */
+
+/* 1. Ambient SpotLight Tracker */
+body.custom-cursor-enabled::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    /* Uses CSS variables updated dynamically by Angular app.ts HostListener */
+    background: radial-gradient(400px circle at var(--mouse-x, 50vw) var(--mouse-y, 50vh), rgba(0, 224, 84, 0.04), transparent 50%);
+    z-index: 1000;
+}
+
+/* 2. Hide default cursor */
+.custom-cursor-enabled, 
+.custom-cursor-enabled * {
+    cursor: none !important;
+}
+
+/* 3. Center Dot (Instant Follow) */
+.cursor-dot {
+    position: fixed;
+    top: -50px;
+    left: -50px;
+    width: 6px;
+    height: 6px;
+    background-color: var(--xports-primary);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 999999;
+    box-shadow: 0 0 8px var(--xports-primary);
+    transition: transform 0.2s ease, opacity 0.2s ease, width 0.2s ease, height 0.2s ease, background-color 0.2s ease;
+}
+
+/* 4. Hover States for clickable elements */
+.cursor-hovering.cursor-dot {
+    width: 40px;
+    height: 40px;
+    background-color: rgba(0, 224, 84, 0.2);
+    border: 1px solid rgba(0, 224, 84, 0.8);
+    box-shadow: 0 0 15px rgba(0, 224, 84, 0.4);
+    transform: translate(-50%, -50%);
+}

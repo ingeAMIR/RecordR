@@ -1,0 +1,326 @@
+/* === Utilities === */
+.bg-gradient-to-t-black {
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.6) 60%, transparent 100%);
+}
+
+.shadow-glow {
+    box-shadow: 0 10px 30px -10px rgba(0, 224, 84, 0.5);
+}
+
+.text-xs {
+    font-size: 0.75rem;
+}
+
+.object-cover {
+    object-fit: cover;
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}
+
+.min-width-0 {
+    min-width: 0;
+}
+
+/* === Section Divider === */
+.section-divider {
+    height: 1px;
+    background: linear-gradient(to right, transparent, rgba(0, 224, 84, 0.15), transparent);
+    margin: 2rem 0 3rem;
+}
+
+/* === Floating Cards Animation (Hero) === */
+.float-card {
+    animation: float 6s ease-in-out infinite;
+}
+
+.float-card-delayed {
+    animation: float 6s ease-in-out 1s infinite;
+}
+
+.float-card-slow {
+    animation: float 8s ease-in-out 0.5s infinite;
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0) rotate(-6deg);
+    }
+    50% {
+        transform: translateY(-12px) rotate(-4deg);
+    }
+}
+
+.float-card-delayed {
+    @keyframes floatDelayed {
+        0%, 100% {
+            transform: translateY(0) rotate(3deg);
+        }
+        50% {
+            transform: translateY(-10px) rotate(5deg);
+        }
+    }
+    animation: floatDelayed 6s ease-in-out 1s infinite;
+}
+
+.float-card-slow {
+    @keyframes floatSlow {
+        0%, 100% {
+            transform: translateY(0) rotate(-2deg);
+        }
+        50% {
+            transform: translateY(-8px) rotate(0deg);
+        }
+    }
+    animation: floatSlow 8s ease-in-out 0.5s infinite;
+}
+
+/* === Trending Cards === */
+.trending-card {
+    background: #1a1d21;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+
+    img {
+        transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    &:hover {
+        border-color: rgba(0, 224, 84, 0.5) !important;
+        transform: translateY(-8px) scale(1.02);
+        box-shadow: 0 20px 40px -15px rgba(0, 224, 84, 0.25);
+
+        img {
+            transform: scale(1.08);
+        }
+    }
+}
+
+.trending-overlay {
+    background: linear-gradient(
+        180deg,
+        rgba(0, 0, 0, 0.1) 0%,
+        rgba(0, 0, 0, 0.3) 50%,
+        rgba(0, 0, 0, 0.85) 100%
+    );
+    pointer-events: none;
+}
+
+/* === How It Works === */
+.how-it-works-card {
+    background: rgba(30, 34, 40, 0.5);
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+
+    &:hover {
+        background: rgba(30, 34, 40, 0.8);
+        border-color: rgba(0, 224, 84, 0.3) !important;
+        transform: translateY(-4px);
+
+        .step-icon .bi {
+            transform: scale(1.15);
+        }
+    }
+}
+
+.step-icon .bi {
+    transition: transform 0.3s ease;
+}
+
+/* === Activity Feed === */
+.activity-feed {
+    max-height: 340px;
+    overflow: hidden;
+    mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
+}
+
+.activity-item {
+    background: rgba(30, 34, 40, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: all 0.3s ease;
+
+    &:hover {
+        background: rgba(30, 34, 40, 0.7);
+        border-color: rgba(0, 224, 84, 0.15);
+    }
+}
+
+/* === Live Stat === */
+.live-stat {
+    background: rgba(30, 34, 40, 0.5);
+    transition: all 0.3s ease;
+
+    &:hover {
+        border-color: rgba(0, 224, 84, 0.3) !important;
+    }
+
+    .h4::before {
+        content: '';
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #00e054;
+        margin-right: 8px;
+        animation: pulse-dot 2s infinite;
+    }
+}
+
+@keyframes pulse-dot {
+    0%, 100% {
+        opacity: 1;
+        box-shadow: 0 0 0 0 rgba(0, 224, 84, 0.4);
+    }
+    50% {
+        opacity: 0.6;
+        box-shadow: 0 0 0 6px rgba(0, 224, 84, 0);
+    }
+}
+
+/* === Player Card === */
+.player-card {
+    background: rgba(30, 34, 40, 0.4);
+    transition: all 0.3s ease;
+
+    &:hover {
+        background: rgba(30, 34, 40, 0.7);
+        border-color: rgba(0, 224, 84, 0.3) !important;
+        transform: translateY(-4px);
+
+        .player-avatar {
+            box-shadow: 0 0 20px rgba(0, 224, 84, 0.2);
+            border-color: rgba(0, 224, 84, 0.6) !important;
+
+            img {
+                transform: scale(1.1);
+            }
+        }
+    }
+}
+
+.player-avatar {
+    transition: box-shadow 0.3s ease, border-color 0.3s ease;
+
+    img {
+        transition: transform 0.3s ease;
+    }
+}
+
+/* === Skeleton Loading === */
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+.skeleton-circle,
+.skeleton-text {
+    background: linear-gradient(90deg, rgba(30, 34, 40, 0.6) 25%, rgba(60, 68, 80, 0.4) 50%, rgba(30, 34, 40, 0.6) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s ease-in-out infinite;
+    border-radius: 4px;
+}
+
+.skeleton-circle {
+    border-radius: 50%;
+}
+
+.skeleton-card {
+    background: linear-gradient(90deg, rgba(30, 34, 40, 0.8) 25%, rgba(60, 68, 80, 0.5) 50%, rgba(30, 34, 40, 0.8) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s ease-in-out infinite;
+    border-radius: 16px;
+}
+
+/* === List Card === */
+.list-card {
+    background: rgba(30, 34, 40, 0.4);
+    transition: all 0.3s ease;
+
+    &:hover {
+        background: rgba(30, 34, 40, 0.7);
+        border-color: rgba(0, 224, 84, 0.3) !important;
+        transform: translateY(-4px);
+    }
+}
+
+/* === CTA Section === */
+.cta-section {
+    background: linear-gradient(135deg, rgba(0, 224, 84, 0.08) 0%, rgba(30, 34, 40, 0.8) 50%, rgba(0, 224, 84, 0.05) 100%);
+    border: 1px solid rgba(0, 224, 84, 0.15);
+    position: relative;
+}
+
+.cta-glow {
+    position: absolute;
+    top: -50%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(0, 224, 84, 0.12) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 1;
+}
+
+.cta-icon {
+    animation: pulse-icon 3s ease-in-out infinite;
+}
+
+@keyframes pulse-icon {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 0.8;
+    }
+    50% {
+        transform: scale(1.1);
+        opacity: 1;
+    }
+}
+
+/* === Hover Arrow Link === */
+.hover-arrow {
+    transition: all 0.2s ease;
+
+    .bi-arrow-right {
+        transition: transform 0.2s ease;
+    }
+
+    &:hover {
+        .bi-arrow-right {
+            transform: translateX(4px);
+        }
+    }
+}
+
+/* === Hover Primary for Social Icons === */
+.hover-primary {
+    transition: all 0.2s ease;
+
+    &:hover {
+        color: #00e054 !important;
+        transform: translateY(-2px);
+    }
+}
+
+/* === Footer Social Icons === */
+footer a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(30, 34, 40, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transition: all 0.3s ease;
+
+    &:hover {
+        background: rgba(0, 224, 84, 0.1);
+        border-color: rgba(0, 224, 84, 0.3);
+    }
+}

@@ -1,0 +1,437 @@
+/* ============================================================
+   Players Page — Full League Mode
+   ============================================================ */
+
+.players-page {
+    min-height: 100vh;
+    background: #0d1117;
+}
+
+/* ── Header ── */
+.page-header {
+    background: linear-gradient(180deg, rgba(0, 224, 84, 0.04) 0%, transparent 100%);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.espn-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(0, 224, 84, 0.06);
+    border: 1px solid rgba(0, 224, 84, 0.2);
+    border-radius: 999px;
+    padding: 4px 12px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: rgba(0, 224, 84, 0.9);
+    text-transform: uppercase;
+}
+
+.espn-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #00e054;
+    animation: pulse-dot 2s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+}
+
+/* Stats summary row */
+.stats-summary {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.stat-bubble {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(30, 34, 40, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 10px;
+    padding: 4px 10px;
+    font-size: 0.7rem;
+
+    .stat-bubble-name {
+        color: rgba(255, 255, 255, 0.5);
+        font-weight: 600;
+    }
+}
+
+.player-total-badge {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 224, 84, 0.06);
+    border: 1px solid rgba(0, 224, 84, 0.2);
+    border-radius: 12px;
+    padding: 6px 16px;
+    min-width: 70px;
+
+    .total-number {
+        font-size: 1.4rem;
+        font-weight: 800;
+        color: #fff;
+        line-height: 1;
+    }
+
+    .total-label {
+        font-size: 0.6rem;
+        text-transform: uppercase;
+        color: rgba(0, 224, 84, 0.7);
+        letter-spacing: 0.06em;
+        font-weight: 600;
+    }
+}
+
+/* ── Filters Bar ── */
+.filters-bar {
+    background: rgba(20, 24, 28, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(12px);
+}
+
+.filter-label {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: rgba(255, 255, 255, 0.4);
+    font-weight: 700;
+    display: block;
+}
+
+.search-wrapper {
+    .search-icon {
+        position: absolute;
+        left: 13px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: rgba(255, 255, 255, 0.3);
+        font-size: 0.85rem;
+        z-index: 2;
+    }
+}
+
+.search-input {
+    background: rgba(10, 14, 18, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #fff;
+    height: 40px;
+    font-size: 0.85rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+
+    &:focus {
+        background: rgba(10, 14, 18, 0.95);
+        border-color: rgba(0, 224, 84, 0.5);
+        box-shadow: 0 0 0 3px rgba(0, 224, 84, 0.08);
+        color: #fff;
+    }
+
+    &::placeholder { color: rgba(255, 255, 255, 0.25); }
+}
+
+.filter-select {
+    background: rgba(10, 14, 18, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.82rem;
+    height: 40px;
+    transition: border-color 0.2s;
+
+    &:focus {
+        background: rgba(10, 14, 18, 0.95);
+        border-color: rgba(0, 224, 84, 0.4);
+        box-shadow: 0 0 0 3px rgba(0, 224, 84, 0.08);
+        color: #fff;
+    }
+
+    option { background: #14181c; color: #fff; }
+}
+
+/* Position buttons */
+.btn-pos {
+    background: rgba(10, 14, 18, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    padding: 4px 8px;
+    border-radius: 8px;
+    transition: all 0.2s;
+    white-space: nowrap;
+
+    &:hover {
+        border-color: rgba(0, 224, 84, 0.3);
+        color: rgba(0, 224, 84, 0.8);
+    }
+
+    &.active {
+        background: rgba(0, 224, 84, 0.1);
+        border-color: rgba(0, 224, 84, 0.5);
+        color: #00e054;
+    }
+}
+
+/* Results count */
+.result-count {
+    text-align: right;
+
+    .result-number {
+        font-size: 1.6rem;
+        font-weight: 800;
+        color: #fff;
+        line-height: 1;
+        display: block;
+    }
+
+    .result-label {
+        font-size: 0.65rem;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.35);
+        letter-spacing: 0.06em;
+    }
+}
+
+/* ── Player Cards ── */
+.player-card {
+    background: rgba(18, 22, 28, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+    display: flex;
+    flex-direction: column;
+
+    .card-top-bar {
+        height: 3px;
+        opacity: 0.6;
+        transition: opacity 0.25s;
+    }
+
+    &:hover {
+        transform: translateY(-3px);
+        border-color: rgba(255, 255, 255, 0.15);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+
+        .card-top-bar { opacity: 1; }
+    }
+}
+
+.card-inner {
+    flex: 1;
+    padding: 0.75rem !important;
+}
+
+/* Jersey + star */
+.jersey-num {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.35);
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 5px;
+    padding: 1px 5px;
+}
+
+.star-icon {
+    color: #f59e0b;
+    font-size: 0.7rem;
+}
+
+/* Avatar: team logo inside bordered circle */
+.avatar-wrapper {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    border: 2px solid;
+    border-color: rgba(255, 255, 255, 0.1);
+    background: rgba(30, 34, 40, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+/* Real player photo (TheSportsDB cutout) */
+.player-photo-real {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+}
+
+/* Initials fallback */
+.player-initials {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+
+    .initials-text {
+        font-size: 1.2rem;
+        font-weight: 800;
+        color: rgba(255, 255, 255, 0.8);
+        letter-spacing: -0.02em;
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+    }
+}
+
+.pos-chip {
+    position: absolute;
+    bottom: -1px;
+    right: -1px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.5rem;
+    font-weight: 800;
+    color: white;
+    letter-spacing: 0;
+    border: 2px solid #0d1117;
+}
+
+/* Player name */
+.player-name {
+    font-size: 0.75rem;
+    line-height: 1.2;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+/* Team row */
+.team-mini-logo {
+    width: 14px;
+    height: 14px;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+/* Nationality */
+.nat-row { min-height: 20px; }
+.flag-img {
+    width: 16px;
+    height: 11px;
+    object-fit: cover;
+    border-radius: 2px;
+    flex-shrink: 0;
+}
+
+.text-xs { font-size: 0.72rem; }
+.text-sm { font-size: 0.82rem; }
+
+/* Stats */
+.stats-row { flex-wrap: wrap; }
+
+.stat-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 7px;
+    padding: 3px 6px;
+    min-width: 30px;
+    flex: 1;
+
+    .stat-val {
+        font-size: 0.78rem;
+        font-weight: 700;
+        line-height: 1;
+    }
+
+    .stat-lbl {
+        font-size: 0.54rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: rgba(255, 255, 255, 0.35);
+    }
+}
+
+/* Card footer */
+.card-footer-row {
+    border-top: 1px solid rgba(255, 255, 255, 0.04);
+    text-align: center;
+    padding: 6px;
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
+}
+
+/* ── Load More ── */
+.btn-load-more {
+    background: rgba(0, 224, 84, 0.08);
+    border: 1px solid rgba(0, 224, 84, 0.3);
+    color: #00e054;
+    font-weight: 700;
+    font-size: 0.88rem;
+    letter-spacing: 0.03em;
+    transition: all 0.25s;
+
+    &:hover {
+        background: rgba(0, 224, 84, 0.15);
+        border-color: rgba(0, 224, 84, 0.6);
+        color: #00e054;
+        transform: translateY(-1px);
+    }
+}
+
+/* ── Skeleton Loaders ── */
+@keyframes shimmer {
+    0% { background-position: -400px 0; }
+    100% { background-position: 400px 0; }
+}
+
+$sk-bg: linear-gradient(90deg, rgba(30,34,40,0.6) 25%, rgba(50,58,70,0.4) 50%, rgba(30,34,40,0.6) 75%);
+
+.player-card-skel {
+    background: rgba(18, 22, 28, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    overflow: hidden;
+
+    .sk-header {
+        height: 3px;
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    .sk-body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 1rem;
+    }
+
+    .sk-avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: $sk-bg;
+        background-size: 400px 100%;
+        animation: shimmer 1.4s ease-in-out infinite;
+    }
+
+    .sk-line {
+        height: 10px;
+        border-radius: 5px;
+        background: $sk-bg;
+        background-size: 400px 100%;
+        animation: shimmer 1.4s ease-in-out infinite;
+
+        &.w-75 { width: 75%; }
+        &.w-50 { width: 50%; }
+    }
+}

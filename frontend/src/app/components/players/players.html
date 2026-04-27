@@ -1,0 +1,234 @@
+<div class="players-page">
+
+  <!-- Page Header -->
+  <div class="page-header px-4 px-lg-5 pt-5 pb-4 mb-4">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-end gap-3">
+      <div>
+        <span class="espn-badge mb-2 d-inline-flex align-items-center gap-2">
+          <span class="espn-dot"></span> ESPN · DATOS EN VIVO
+        </span>
+        <h1 class="display-5 fw-black text-white m-0">Jugadores</h1>
+        <p class="text-muted lead mb-0">Todos los jugadores de las principales ligas del mundo. Temporada {{ currentSeason }}.</p>
+      </div>
+
+      <!-- Live counter -->
+      <div class="stats-summary d-flex gap-3">
+        <div class="stat-bubble" *ngFor="let league of leagues">
+          <span class="stat-bubble-name">{{ league.name }}</span>
+          <span class="stat-bubble-status">
+            <span *ngIf="leagueStatus[league.slug] === 'loading'" class="spinner-border spinner-border-sm text-primary"></span>
+            <i *ngIf="leagueStatus[league.slug] === 'done'" class="bi bi-check-circle-fill text-success"></i>
+            <i *ngIf="leagueStatus[league.slug] === 'error'" class="bi bi-x-circle-fill text-danger"></i>
+          </span>
+        </div>
+        <div class="player-total-badge">
+          <span class="total-number">{{ loadedCount }}</span>
+          <span class="total-label">cargados</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="px-4 px-lg-5">
+
+    <!-- === FILTERS BAR === -->
+    <div class="filters-bar rounded-4 p-4 mb-4">
+      <div class="row g-3 align-items-end">
+
+        <!-- Search -->
+        <div class="col-12 col-md-4">
+          <label class="filter-label mb-1">Buscar</label>
+          <div class="search-wrapper position-relative">
+            <i class="bi bi-search search-icon"></i>
+            <input
+              type="text"
+              class="form-control search-input ps-5"
+              placeholder="Jugador, equipo, país..."
+              [(ngModel)]="searchQuery"
+              (input)="onFilterChange()"
+              id="player-search"
+            />
+          </div>
+        </div>
+
+        <!-- League -->
+        <div class="col-6 col-md-2">
+          <label class="filter-label mb-1">Liga</label>
+          <select class="form-select filter-select" [(ngModel)]="selectedLeague" (change)="onLeagueChange(selectedLeague)" id="league-filter">
+            <option value="all">Todas</option>
+            <option *ngFor="let l of leagues" [value]="l.slug">{{ l.name }}</option>
+          </select>
+        </div>
+
+        <!-- Team -->
+        <div class="col-6 col-md-3">
+          <label class="filter-label mb-1">Equipo</label>
+          <select class="form-select filter-select" [(ngModel)]="selectedTeam" (change)="onFilterChange()" id="team-filter">
+            <option value="all">Todos los equipos</option>
+            <option *ngFor="let t of availableTeams" [value]="t.id">{{ t.name }}</option>
+          </select>
+        </div>
+
+        <!-- Position -->
+        <div class="col-6 col-md-2">
+          <label class="filter-label mb-1">Posición</label>
+          <div class="d-flex gap-1 flex-wrap">
+            <button
+              *ngFor="let p of positions"
+              class="btn btn-pos btn-sm"
+              [class.active]="selectedPosition === p.key"
+              (click)="selectedPosition = p.key; onFilterChange()"
+            >{{ p.label }}</button>
+          </div>
+        </div>
+
+        <!-- Results count -->
+        <div class="col-6 col-md-1 text-end">
+          <div class="result-count">
+            <span class="result-number">{{ filteredPlayers.length }}</span>
+            <span class="result-label d-block">jugadores</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- === LOADING STATE: show partial skeletons while first league loads === -->
+    <div *ngIf="isLoading && allPlayers.length === 0">
+      <div class="row g-3 mb-4">
+        <div class="col-6 col-sm-4 col-lg-3 col-xl-2" *ngFor="let s of skeletonCount">
+          <div class="player-card-skel rounded-4">
+            <div class="sk-header"></div>
+            <div class="sk-body p-3">
+              <div class="sk-avatar mx-auto mb-3"></div>
+              <div class="sk-line w-75 mx-auto mb-2"></div>
+              <div class="sk-line w-50 mx-auto"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- === EMPTY STATE === -->
+    <div class="text-center py-5" *ngIf="!isLoading && filteredPlayers.length === 0 && allPlayers.length > 0">
+      <i class="bi bi-search display-3 text-muted d-block mb-3"></i>
+      <h5 class="text-white">Sin resultados</h5>
+      <p class="text-muted">Prueba con otros filtros o términos de búsqueda.</p>
+    </div>
+
+    <!-- === PLAYERS GRID === -->
+    <div class="row g-3 mb-4" *ngIf="displayedPlayers.length > 0">
+      <div class="col-6 col-sm-4 col-lg-3 col-xl-2" *ngFor="let player of displayedPlayers; trackBy: trackById">
+        <div class="player-card rounded-4 h-100" (click)="openEspnProfile(player)" [title]="player.name + ' – ver en ESPN'">
+
+          <!-- Top accent line colored like team -->
+          <div class="card-top-bar" [style.background]="player.teamColor"></div>
+
+          <div class="card-inner p-3 d-flex flex-column align-items-center text-center">
+
+            <!-- Badge row -->
+            <div class="w-100 d-flex justify-content-between align-items-center mb-2">
+              <span class="jersey-num">#{{ player.jersey }}</span>
+              <span class="star-icon" *ngIf="player.isTrending"><i class="bi bi-star-fill"></i></span>
+            </div>
+
+            <!-- Avatar: real photo or initials fallback -->
+            <div class="avatar-wrapper mb-3" [style.border-color]="player.teamColor">
+              <!-- Real photo from TheSportsDB (populated after enrichment) -->
+              <img
+                *ngIf="player.photo"
+                class="player-photo-real"
+                [src]="player.photo"
+                [alt]="player.name"
+                (error)="onPhotoError($event, player)"
+              />
+              <!-- Initials fallback when no photo -->
+              <div
+                *ngIf="!player.photo"
+                class="player-initials"
+                [style.background]="getInitialsBg(player.teamColor)"
+              >
+                <span class="initials-text">{{ getInitials(player.name) }}</span>
+              </div>
+              <div class="pos-chip" [style.background]="getPositionColor(player.position)">
+                {{ getPositionAbbrev(player.position) }}
+              </div>
+            </div>
+
+            <!-- Name -->
+            <h6 class="player-name text-white fw-bold mb-1">{{ player.name }}</h6>
+
+            <!-- Team -->
+            <div class="team-row d-flex align-items-center justify-content-center gap-1 mb-1">
+              <img [src]="player.teamLogo" class="team-mini-logo" [alt]="player.team" (error)="onImgError($event)" />
+              <small class="text-muted text-truncate" style="max-width:100px;">{{ player.team }}</small>
+            </div>
+
+            <!-- Nationality -->
+            <div class="nat-row d-flex align-items-center justify-content-center gap-1 mb-3">
+              <img *ngIf="player.nationalityFlag" [src]="player.nationalityFlag" class="flag-img" [alt]="player.nationality" />
+              <small class="text-muted opacity-75 text-xs">{{ player.nationality }}</small>
+            </div>
+
+            <!-- Stats -->
+            <div class="stats-row d-flex gap-1 justify-content-center mt-auto w-100">
+              <div class="stat-box">
+                <span class="stat-val text-white">{{ player.stats.appearances }}</span>
+                <span class="stat-lbl">PJ</span>
+              </div>
+              <ng-container *ngIf="player.position !== 'Portero'">
+                <div class="stat-box">
+                  <span class="stat-val text-primary">{{ player.stats.goals }}</span>
+                  <span class="stat-lbl">G</span>
+                </div>
+                <div class="stat-box">
+                  <span class="stat-val text-white">{{ player.stats.assists }}</span>
+                  <span class="stat-lbl">A</span>
+                </div>
+              </ng-container>
+              <ng-container *ngIf="player.position === 'Portero'">
+                <div class="stat-box">
+                  <span class="stat-val text-primary">{{ player.stats.saves }}</span>
+                  <span class="stat-lbl">SV</span>
+                </div>
+              </ng-container>
+              <div class="stat-box" *ngIf="player.stats.yellowCards > 0">
+                <span class="stat-val text-warning">{{ player.stats.yellowCards }}</span>
+                <span class="stat-lbl">AM</span>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Footer -->
+          <div class="card-footer-row" *ngIf="player.espnUrl">
+            <span class="text-primary text-xs fw-bold">ESPN <i class="bi bi-box-arrow-up-right"></i></span>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- === LOAD MORE === -->
+    <div class="text-center pb-5" *ngIf="displayedPlayers.length > 0">
+      <div class="d-flex align-items-center justify-content-center gap-3 mb-3">
+        <span class="text-muted text-sm">
+          Mostrando {{ displayedPlayers.length }} de {{ filteredPlayers.length }} jugadores
+        </span>
+        <span class="text-muted" *ngIf="isLoading">
+          <span class="spinner-border spinner-border-sm text-primary me-1"></span>
+          Cargando más ligas...
+        </span>
+      </div>
+      <button
+        class="btn btn-load-more rounded-pill px-5 py-3"
+        *ngIf="hasMore"
+        (click)="loadMore()"
+      >
+        <i class="bi bi-chevron-down me-2"></i>
+        Cargar más jugadores
+        <span class="badge bg-primary ms-2">+{{ pageSize }}</span>
+      </button>
+    </div>
+
+  </div>
+</div>

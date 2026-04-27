@@ -1,0 +1,51 @@
+<div class="navbar-wrapper">
+    <nav class="navbar navbar-expand-lg navbar-island py-2 transition-all" id="mainNav">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand d-flex align-items-center gap-2 position-relative brand-glow" routerLink="/">
+                <img src="logo_final.png" alt="RecordR Logo"
+                    style="height: 45px; width: auto;">
+                <span class="font-outfit fw-black tracking-tight text-white ms-1" style="font-size: 1.5rem;">RecordR</span>
+            </a>
+
+            <button class="navbar-toggler border-0 text-white" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarNav">
+                <i class="bi bi-list fs-2"></i>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-lg-4 Island-links">
+                    <li class="nav-item">
+                        <a class="nav-link text-uppercase fw-bold text-secondary text-xs tracking-wider magnetic-hover"
+                            routerLink="/matches" routerLinkActive="active-link">Partidos</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-uppercase fw-bold text-secondary text-xs tracking-wider magnetic-hover"
+                            routerLink="/players" routerLinkActive="active-link">Jugadores</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-uppercase fw-bold text-secondary text-xs tracking-wider magnetic-hover" routerLink="/lists"
+                            routerLinkActive="active-link">Listas</a>
+                    </li>
+                </ul>
+
+                <div class="d-flex align-items-center gap-3">
+                    <ng-container *ngIf="authService.currentUser$ | async as user; else guestLinks">
+                        <a routerLink="/profile" class="btn btn-primary rounded-pill px-4 fw-bold text-sm border-0 island-glow-btn d-flex align-items-center gap-2">
+                            <img *ngIf="user.avatar; else defaultAvatar" [src]="user.avatar" alt="Avatar" class="rounded-circle" style="width: 20px; height: 20px; object-fit: cover;">
+                            <ng-template #defaultAvatar>
+                                <i class="bi bi-person-fill fs-5 m-0 lh-1"></i>
+                            </ng-template>
+                            <span>Mi Perfil</span>
+                        </a>
+                    </ng-container>
+                    <ng-template #guestLinks>
+                        <a routerLink="/login" class="btn btn-link text-decoration-none text-white fw-bold text-sm login-btn">Iniciar Sesión</a>
+                        <a routerLink="/register" class="btn btn-primary rounded-pill px-4 fw-bold text-sm border-0 island-glow-btn">Registrarse</a>
+                    </ng-template>
+                </div>
+            </div>
+        </div>
+    </nav>
+</div>
+<!-- Spacer for sticky island nav -->
+<div style="height: 110px;"></div>

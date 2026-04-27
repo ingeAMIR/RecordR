@@ -1,0 +1,57 @@
+<div class="container-fluid min-vh-100 d-flex align-items-center justify-content-center bg-dots py-5">
+    <div class="card p-4 p-md-5 border-0 shadow-2xl rounded-4"
+        style="max-width: 480px; width: 100%; background-color: #1a1d21;">
+
+        <div class="text-center mb-4">
+            <h2 class="fw-black text-white m-0">Crear Cuenta</h2>
+            <p class="text-secondary">Únete a la comunidad deportiva #1 hoy.</p>
+        </div>
+
+            <div class="alert alert-danger" *ngIf="error">{{ error }}</div>
+
+        <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+            <div class="form-floating mb-3">
+                <input type="text"
+                    class="form-control bg-dark border-secondary text-white rounded-3 shadow-none focus-primary"
+                    id="username" placeholder="Username" formControlName="username">
+                <label for="username" class="text-muted">Nombre de usuario</label>
+            </div>
+
+            <div class="form-floating mb-3">
+                <input type="email"
+                    class="form-control bg-dark border-secondary text-white rounded-3 shadow-none focus-primary"
+                    id="email" placeholder="name@example.com" formControlName="email">
+                <label for="email" class="text-muted">Correo electrónico</label>
+            </div>
+
+            <div class="form-floating mb-3">
+                <input type="password"
+                    class="form-control bg-dark border-secondary text-white rounded-3 shadow-none focus-primary"
+                    id="password" placeholder="Password" formControlName="password">
+                <label for="password" class="text-muted">Contraseña</label>
+            </div>
+
+            <div class="form-check mb-4">
+                <input class="form-check-input bg-dark border-secondary focus-primary" type="checkbox" value=""
+                    id="flexCheckDefault">
+                <label class="form-check-label text-secondary small" for="flexCheckDefault">
+                    Acepto los <a href="#" class="text-light text-decoration-none fw-bold">Términos de Servicio</a> y la
+                    <a href="#" class="text-light text-decoration-none fw-bold">Política de Privacidad</a>
+                </label>
+            </div>
+
+            <div class="d-grid gap-2 mb-4">
+                <button type="submit" class="btn btn-primary btn-lg rounded-pill fw-bold shadow-glow" [disabled]="registerForm.invalid || loading">
+                    <span *ngIf="loading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                    Crear Cuenta
+                </button>
+            </div>
+
+            <div class="text-center">
+                <a routerLink="/login" class="text-decoration-none text-light small">
+                    ¿Ya tienes una cuenta? <span class="text-primary fw-bold">Iniciar Sesión</span>
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
