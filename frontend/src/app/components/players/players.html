@@ -1,99 +1,147 @@
 <div class="players-page">
 
-  <!-- ── HEADER ── -->
+  <!-- HEADER -->
   <div class="page-header px-4 px-lg-5 pt-5 pb-4">
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-end gap-3">
-      <div>
-        <span class="espn-badge mb-2 d-inline-flex align-items-center gap-2">
-          <span class="espn-dot"></span> ESPN · DATOS EN VIVO
-        </span>
-        <h1 class="display-5 fw-black text-white m-0">Jugadores</h1>
-        <p class="text-muted mb-0 mt-1">
-          {{ allPlayers.length }} jugadores cargados · Temporada {{ currentSeason }}
-        </p>
-      </div>
-
-      <!-- Loading indicators por deporte -->
-      <div class="d-flex gap-2 flex-wrap">
-        <div *ngFor="let tab of sportTabs.slice(1)" class="sport-status-chip"
-             [class.loading]="getSportLoadingStatus(tab.sport) === 'loading'"
-             [class.done]="getSportLoadingStatus(tab.sport) === 'done'">
-          <i class="bi {{ tab.icon }} me-1"></i>
-          {{ tab.sportLabel }}
-          <span *ngIf="getSportLoadingStatus(tab.sport) === 'loading'" class="spinner-border spinner-border-sm ms-1"></span>
-          <i *ngIf="getSportLoadingStatus(tab.sport) === 'done'" class="bi bi-check-lg ms-1"></i>
-        </div>
-      </div>
-    </div>
+    <span class="espn-badge mb-2 d-inline-flex align-items-center gap-2">
+      <span class="espn-dot"></span> ESPN · DATOS EN VIVO
+    </span>
+    <h1 class="display-5 fw-black text-white m-0 mt-1">Jugadores</h1>
+    <p class="text-muted mb-0 mt-1">Temporada {{ currentSeason }} · {{ allPlayers.length }} jugadores cargados</p>
   </div>
 
   <div class="px-4 px-lg-5">
 
-    <!-- ── SPORT TABS ── -->
-    <div class="sport-tabs-row d-flex gap-2 mb-3 overflow-auto pb-1">
+    <!-- Indicador de fuente de datos -->
+    <div *ngIf="!loading && allPlayers.length > 0"
+         class="cache-bar mb-3 d-flex align-items-center gap-2">
+      <i class="bi bi-lightning-charge-fill text-primary small"></i>
+      <small class="text-muted">{{ allPlayers.length }} jugadores · Temporada {{ currentSeason }}</small>
+    </div>
+
+    <!-- SPORT TABS -->
+    <div class="sport-tabs-row d-flex gap-2 mb-3">
       <button *ngFor="let tab of sportTabs"
               class="sport-tab-btn"
               [class.active]="activeSport === tab.sport"
               (click)="selectSport(tab.sport)">
         <i class="bi {{ tab.icon }}"></i>
         <span>{{ tab.sportLabel }}</span>
+        <span *ngIf="loading"
+              class="spinner-border spinner-border-sm ms-1 flex-shrink-0"></span>
+        <i *ngIf="!loading && allPlayers.length > 0"
+           class="bi bi-check-circle-fill ms-1 text-success small"></i>
       </button>
     </div>
 
-    <!-- ── FILTROS COMPACTOS ── -->
-    <div class="filters-row d-flex flex-wrap gap-2 align-items-center mb-4">
+    <!-- FILTROS -->
+    <div class="filters-bar mb-4">
 
-      <!-- Búsqueda -->
-      <div class="search-box position-relative flex-grow-1" style="min-width: 200px; max-width: 320px;">
+      <div class="search-box position-relative flex-grow-1" style="min-width:180px;max-width:320px;">
         <i class="bi bi-search search-icon"></i>
         <input type="text" class="filter-input ps-4"
-               placeholder="Buscar jugador, equipo..."
-               [(ngModel)]="searchQuery"
-               (input)="onFilterChange()">
+               placeholder="Buscar cualquier jugador..."
+               [(ngModel)]="searchQuery" (input)="onSearchInput()">
+        <span *ngIf="searchLoading" class="search-spinner">
+          <span class="spinner-border spinner-border-sm text-primary"></span>
+        </span>
       </div>
 
-      <!-- Liga (solo si hay más de una para el deporte activo) -->
-      <select class="filter-select" [(ngModel)]="activeLeague" (change)="selectedPosition='all'; selectedTeam='all'; onFilterChange()"
-              *ngIf="leaguesForSport.length > 1">
+      <select class="filter-select" [(ngModel)]="activeLeague" (change)="onLeagueChange()"
+              *ngIf="leagueOptions.length > 1">
         <option value="all">Todas las ligas</option>
-        <option *ngFor="let l of leaguesForSport" [value]="l.slug">{{ l.name }}</option>
+        <option *ngFor="let l of leagueOptions" [value]="l.slug">{{ l.name }}</option>
       </select>
 
-      <!-- Equipo -->
       <select class="filter-select" [(ngModel)]="selectedTeam" (change)="onFilterChange()"
-              *ngIf="availableTeams.length > 1">
+              *ngIf="teamOptions.length > 1">
         <option value="all">Todos los equipos</option>
-        <option *ngFor="let t of availableTeams" [value]="t.id">{{ t.name }}</option>
+        <option *ngFor="let t of teamOptions" [value]="t.id">{{ t.name }}</option>
       </select>
 
-      <!-- Posición (pills) -->
-      <div class="pos-pills d-flex gap-1 flex-wrap" *ngIf="availablePositions.length > 0">
-        <button class="pos-pill" [class.active]="selectedPosition === 'all'"
-                (click)="selectedPosition='all'; onFilterChange()">Todas</button>
-        <button *ngFor="let pos of availablePositions"
-                class="pos-pill"
-                [class.active]="selectedPosition === pos"
+      <div class="pos-pills d-flex gap-1 flex-wrap" *ngIf="positionOptions.length > 0">
+        <button class="pos-pill" [class.active]="selectedPos === 'all'"
+                (click)="selectedPos='all'; onFilterChange()">Todas</button>
+        <button *ngFor="let pos of positionOptions" class="pos-pill"
+                [class.active]="selectedPos === pos"
                 [style.--pos-color]="getPositionColor(pos)"
-                (click)="selectedPosition = pos; onFilterChange()">
-          {{ pos }}
-        </button>
+                (click)="selectedPos = pos; onFilterChange()">{{ pos }}</button>
       </div>
 
-      <!-- Contador + clear -->
       <div class="ms-auto d-flex align-items-center gap-2">
-        <span class="result-count-badge">{{ filteredPlayers.length }}</span>
+        <span class="result-badge">{{ filteredPlayers.length }}</span>
         <button *ngIf="hasActiveFilters" class="btn-clear" (click)="clearFilters()">
-          <i class="bi bi-x-lg"></i> Limpiar
+          <i class="bi bi-x-lg"></i>
         </button>
       </div>
     </div>
 
-    <!-- ── SKELETON mientras carga ── -->
-    <div *ngIf="isLoading && !anyLoaded" class="row g-3 mb-4">
-      <div class="col-6 col-sm-4 col-lg-3 col-xl-2" *ngFor="let s of skeletonCount">
+    <!-- ── RESULTADOS DE BÚSQUEDA ESPN (modo búsqueda) ── -->
+    <ng-container *ngIf="searchMode">
+
+      <!-- Buscando... -->
+      <div *ngIf="searchLoading" class="text-center py-5">
+        <div class="spinner-border text-primary mb-3"></div>
+        <p class="text-muted">Buscando en ESPN...</p>
+      </div>
+
+      <!-- Sin resultados de búsqueda -->
+      <div *ngIf="!searchLoading && searchResults.length === 0" class="text-center py-5">
+        <i class="bi bi-person-x display-3 text-muted d-block mb-3 opacity-50"></i>
+        <h5 class="text-white">Sin resultados para "{{ searchQuery }}"</h5>
+        <p class="text-muted">Intenta con otro nombre o apodo.</p>
+      </div>
+
+      <!-- Grid resultados búsqueda -->
+      <div *ngIf="!searchLoading && searchResults.length > 0">
+        <div class="search-mode-header mb-3 d-flex align-items-center gap-2">
+          <i class="bi bi-search text-primary"></i>
+          <span class="text-white fw-bold">{{ searchResults.length }} resultados en ESPN</span>
+          <span class="text-muted small">— búsqueda global, todos los deportes</span>
+        </div>
+        <div class="row g-3 mb-4">
+          <div class="col-6 col-sm-4 col-lg-3 col-xl-2"
+               *ngFor="let player of searchResults; trackBy: trackById">
+            <div class="player-card rounded-4"
+                 [class.has-link]="!!player.espnUrl"
+                 (click)="openEspnProfile(player)">
+              <div class="card-top-bar" [style.background]="'#00e054'"></div>
+              <div class="card-inner p-3 d-flex flex-column align-items-center text-center">
+                <div class="w-100 d-flex justify-content-between align-items-center mb-2">
+                  <span class="sport-tag">{{ player.sportLabel || player.sport }}</span>
+                  <span class="sport-tag" style="color:rgba(255,255,255,0.3)">{{ player.league }}</span>
+                </div>
+                <div class="avatar-wrapper mb-2">
+                  <img *ngIf="player.photo" [src]="player.photo" [alt]="player.name"
+                       class="player-photo" (error)="onPhotoError($event, player)">
+                  <div *ngIf="!player.photo" class="player-initials"
+                       [style.background]="'linear-gradient(135deg,#00e05433,#00e05411)'">
+                    {{ getInitials(player.name) }}
+                  </div>
+                </div>
+                <h6 class="player-name text-white fw-bold mb-1">{{ player.name }}</h6>
+                <small class="text-muted">{{ player.team }}</small>
+                <div class="mt-2" *ngIf="player.espnUrl">
+                  <small style="color:#00e054;font-size:0.6rem;font-weight:700;">
+                    <i class="bi bi-box-arrow-up-right me-1"></i>Ver en ESPN
+                  </small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </ng-container>
+
+    <!-- ── MODO BROWSE (sin búsqueda activa) ── -->
+    <ng-container *ngIf="!searchMode">
+
+    <!-- SKELETON -->
+    <div *ngIf="loading && allPlayers.length === 0" class="row g-3 mb-4">
+      <div class="col-6 col-sm-4 col-lg-3 col-xl-2" *ngFor="let s of skeletons">
         <div class="player-skel rounded-4">
           <div class="sk-top"></div>
-          <div class="sk-body p-3">
+          <div class="p-3">
             <div class="sk-circle mx-auto mb-2"></div>
             <div class="sk-line w-70 mx-auto mb-1"></div>
             <div class="sk-line w-50 mx-auto"></div>
@@ -102,92 +150,83 @@
       </div>
     </div>
 
-    <!-- ── SIN RESULTADOS ── -->
+    <!-- SIN RESULTADOS -->
     <div class="text-center py-5"
-         *ngIf="!isLoading && filteredPlayers.length === 0 && anyLoaded">
+         *ngIf="!loading && filteredPlayers.length === 0 && allPlayers.length > 0">
       <i class="bi bi-person-x display-3 text-muted d-block mb-3 opacity-50"></i>
       <h5 class="text-white">Sin resultados</h5>
-      <p class="text-muted">Prueba con otros filtros o términos de búsqueda.</p>
+      <p class="text-muted">Intenta con otros filtros.</p>
       <button class="btn btn-outline-primary rounded-pill px-4" (click)="clearFilters()">Limpiar filtros</button>
     </div>
 
-    <!-- ── GRID DE JUGADORES ── -->
+    <!-- GRID DE JUGADORES -->
     <div class="row g-3 mb-4" *ngIf="displayedPlayers.length > 0">
       <div class="col-6 col-sm-4 col-lg-3 col-xl-2"
            *ngFor="let player of displayedPlayers; trackBy: trackById">
 
-        <div class="player-card rounded-4 h-100 cursor-pointer"
-             (click)="player.espnUrl && openEspnProfile(player)"
-             [title]="player.name">
+        <div class="player-card rounded-4"
+             [class.has-link]="!!player.espnUrl"
+             (click)="openEspnProfile(player)">
 
           <!-- Barra de color del equipo -->
-          <div class="card-accent" [style.background]="player.teamColor"></div>
+          <div class="card-top-bar" [style.background]="player.teamColor"></div>
 
-          <div class="card-body-inner p-3 d-flex flex-column align-items-center text-center">
+          <div class="card-inner p-3 d-flex flex-column align-items-center text-center">
 
-            <!-- Sport tag + jersey -->
+            <!-- Jersey + trending -->
             <div class="w-100 d-flex justify-content-between align-items-center mb-2">
-              <span class="sport-mini-tag">{{ player.sportLabel }}</span>
-              <span class="jersey-badge">#{{ player.jersey }}</span>
+              <span class="jersey-num">#{{ player.jersey }}</span>
+              <span class="sport-tag">{{ player.sportLabel }}</span>
             </div>
 
             <!-- Avatar -->
-            <div class="avatar-wrap mb-2" [style.border-color]="player.teamColor + '88'">
+            <div class="avatar-wrapper mb-2" [style.border-color]="player.teamColor + '55'">
               <img *ngIf="player.photo" [src]="player.photo" [alt]="player.name"
-                   class="player-img" (error)="onPhotoError($event, player)">
+                   class="player-photo" (error)="onPhotoError($event, player)">
               <div *ngIf="!player.photo" class="player-initials"
                    [style.background]="getInitialsBg(player.teamColor)">
-                <span>{{ getInitials(player.name) }}</span>
+                {{ getInitials(player.name) }}
               </div>
-              <!-- Badge de posición -->
-              <span class="pos-badge" [style.background]="getPositionColor(player.positionGroup)">
+              <span class="pos-chip" [style.background]="getPositionColor(player.positionGroup)">
                 {{ player.position }}
               </span>
             </div>
 
             <!-- Nombre -->
-            <h6 class="player-name fw-bold text-white mb-1">{{ player.shortName || player.name }}</h6>
+            <h6 class="player-name text-white fw-bold mb-1">{{ player.shortName || player.name }}</h6>
 
             <!-- Equipo -->
-            <div class="d-flex align-items-center gap-1 mb-2">
+            <div class="d-flex align-items-center gap-1 mb-1">
               <img [src]="player.teamLogo" class="team-mini-logo" [alt]="player.team"
                    (error)="onImgError($event)">
-              <small class="text-muted text-truncate" style="max-width: 100px;">{{ player.team }}</small>
+              <small class="text-muted text-truncate" style="max-width:110px;">{{ player.team }}</small>
             </div>
 
-            <!-- Stats adaptados al deporte -->
-            <div class="stats-row d-flex gap-1 justify-content-center mt-auto w-100">
-              <div *ngFor="let s of getStatLabels(player)" class="stat-box"
-                   [class.highlight]="s.highlight">
-                <span class="stat-val">{{ s.value }}</span>
-                <span class="stat-lbl">{{ s.label }}</span>
-              </div>
-            </div>
+            <!-- Liga -->
+            <small class="league-label">{{ player.league }}</small>
 
-          </div>
-
-          <div class="card-footer-espn" *ngIf="player.espnUrl">
-            <i class="bi bi-box-arrow-up-right me-1"></i>ESPN
           </div>
 
         </div>
       </div>
     </div>
 
-    <!-- ── CARGAR MÁS ── -->
+    <!-- PAGINACIÓN -->
     <div class="text-center pb-5" *ngIf="displayedPlayers.length > 0">
       <p class="text-muted small mb-3">
         Mostrando {{ displayedPlayers.length }} de {{ filteredPlayers.length }}
-        <span *ngIf="isLoading" class="ms-2">
-          <span class="spinner-border spinner-border-sm text-primary me-1"></span>
-          Cargando más ligas...
+        <span *ngIf="loading" class="ms-2 text-primary">
+          <span class="spinner-border spinner-border-sm me-1"></span>cargando más...
         </span>
       </p>
-      <button class="btn btn-load-more rounded-pill px-5 py-2" *ngIf="hasMore" (click)="loadMore()">
-        <i class="bi bi-chevron-down me-2"></i>Ver más jugadores
+      <button class="btn btn-load-more rounded-pill px-5 py-2"
+              *ngIf="hasMore" (click)="loadMore()">
+        <i class="bi bi-chevron-down me-2"></i>Ver más
         <span class="badge bg-primary text-black ms-2">+{{ pageSize }}</span>
       </button>
     </div>
+
+    </ng-container><!-- fin modo browse -->
 
   </div>
 </div>

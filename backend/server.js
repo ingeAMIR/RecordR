@@ -5,6 +5,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const multer = require('multer');
 const path = require('path');
+const https = require('https');
 const db = require('./config/db');
 
 dotenv.config();
@@ -30,7 +31,36 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use('/uploads', express.static(path.join(__dirname, 'uploads'))); // Serve uploaded files
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// ── TheSportsDB Proxy (fotos de jugadores) ──────────────────────────────────
+app.get('/thesportsdb/*', (req, res) => {
+  const tdbPath = req.url.replace(/^\/thesportsdb/, '');
+  const tdbUrl = `https://www.thesportsdb.com${tdbPath}`;
+
+  https.get(tdbUrl, { headers: { 'User-Agent': 'Mozilla/5.0' } }, (tdbRes) => {
+    res.setHeader('Content-Type', 'application/json;charset=UTF-8');
+    tdbRes.pipe(res);
+  }).on('error', (err) => {
+    res.status(502).json({ error: err.message });
+  });
+});
+// ────────────────────────────────────────────────────────────────────────────
+
+// ── ESPN Proxy ──────────────────────────────────────────────────────────────
+// Evita bloqueos CORS del navegador en endpoints de equipos/rosters de ESPN
+app.get('/espn/*', (req, res) => {
+  const espnPath = req.url.replace(/^\/espn/, '');
+  const espnUrl = `https://site.api.espn.com${espnPath}`;
+
+  https.get(espnUrl, { headers: { 'User-Agent': 'Mozilla/5.0' } }, (espnRes) => {
+    res.setHeader('Content-Type', 'application/json;charset=UTF-8');
+    espnRes.pipe(res);
+  }).on('error', (err) => {
+    res.status(502).json({ error: 'ESPN proxy error', detail: err.message });
+  });
+});
+// ────────────────────────────────────────────────────────────────────────────
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({

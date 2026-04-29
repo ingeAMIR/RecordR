@@ -1,19 +1,16 @@
 {
+  "/apis": {
+    "target": "https://site.api.espn.com",
+    "secure": true,
+    "changeOrigin": true,
+    "logLevel": "info"
+  },
   "/api/thesportsdb": {
     "target": "https://www.thesportsdb.com",
     "secure": false,
     "changeOrigin": true,
     "pathRewrite": {
       "^/api/thesportsdb": ""
-    },
-    "logLevel": "warn"
-  },
-  "/api/espn": {
-    "target": "https://site.api.espn.com",
-    "secure": false,
-    "changeOrigin": true,
-    "pathRewrite": {
-      "^/api/espn": ""
     },
     "logLevel": "warn"
   }
