@@ -7,6 +7,7 @@ import { MatchDetailComponent } from './components/match-detail/match-detail';
 import { PlayersComponent } from './components/players/players';
 import { ListsComponent } from './components/lists/lists';
 import { ProfileComponent } from './components/profile/profile';
+import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
     { path: '', component: HomeComponent },
@@ -16,6 +17,6 @@ export const routes: Routes = [
     { path: 'match/:id', component: MatchDetailComponent },
     { path: 'players', component: PlayersComponent },
     { path: 'lists', component: ListsComponent },
-    { path: 'profile', component: ProfileComponent },
+    { path: 'profile', component: ProfileComponent, canActivate: [authGuard] },
     { path: '**', redirectTo: '' }
 ];

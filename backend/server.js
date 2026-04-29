@@ -75,7 +75,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 app.get('/', (req, res) => {
-  res.json({ message: 'Welcome to Xports API' });
+  res.json({ message: 'RecordR API' });
 });
 
 // Helper for generating JWT
@@ -84,6 +84,22 @@ const generateToken = (id, username, email, avatar_url) => {
     expiresIn: '30d',
   });
 };
+
+// ── Middleware de autenticación JWT ─────────────────────────────────────────
+const requireAuth = (req, res, next) => {
+  const header = req.headers.authorization;
+  if (!header || !header.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'No autorizado' });
+  }
+  try {
+    const token = header.split(' ')[1];
+    req.user = jwt.verify(token, process.env.JWT_SECRET || 'fallback_secret');
+    next();
+  } catch {
+    return res.status(401).json({ error: 'Token inválido o expirado' });
+  }
+};
+// ────────────────────────────────────────────────────────────────────────────
 
 // POST Register
 app.post('/api/auth/register', async (req, res) => {
@@ -184,10 +200,15 @@ app.post('/api/auth/google', (req, res) => {
   });
 });
 
-// PUT Update Profile
-app.put('/api/auth/profile/:id', upload.single('avatarFile'), (req, res) => {
+// PUT Update Profile (requiere auth)
+app.put('/api/auth/profile/:id', requireAuth, upload.single('avatarFile'), (req, res) => {
+  // Solo el propio usuario puede editar su perfil
+  if (req.user.id !== parseInt(req.params.id)) {
+    return res.status(403).json({ error: 'No tienes permiso para editar este perfil' });
+  }
   const userId = req.params.id;
   const { username, email } = req.body;
+
   
   let avatar = req.body.avatar;
   if (req.file) {
@@ -256,8 +277,134 @@ app.get('/api/opinions/:matchId', (req, res) => {
   });
 });
 
-// POST new opinion
-app.post('/api/opinions', (req, res) => {
+// ── RATINGS ─────────────────────────────────────────────────────────────────
+
+// POST guardar rating
+app.post('/api/ratings', requireAuth, (req, res) => {
+  const { matchId, stars } = req.body;
+  const userId = req.user.id;
+  if (!matchId || !stars || stars < 1 || stars > 5) {
+    return res.status(400).json({ error: 'matchId y stars (1-5) son requeridos' });
+  }
+  const q = `INSERT INTO match_ratings (espn_match_id, user_id, stars) VALUES (?, ?, ?)
+             ON DUPLICATE KEY UPDATE stars = VALUES(stars)`;
+  db.query(q, [matchId, userId, stars], (err) => {
+    if (err) return res.status(500).json({ error: 'Error guardando rating' });
+    db.query(
+      'SELECT AVG(stars) as avg, COUNT(*) as count FROM match_ratings WHERE espn_match_id = ?',
+      [matchId],
+      (err2, rows) => {
+        if (err2) return res.json({ avgRating: stars });
+        res.json({ avgRating: parseFloat(rows[0].avg) || stars, count: rows[0].count });
+      }
+    );
+  });
+});
+
+// GET rating del usuario para un partido
+app.get('/api/ratings/:matchId/user/:userId', requireAuth, (req, res) => {
+  const { matchId, userId } = req.params;
+  db.query(
+    'SELECT stars FROM match_ratings WHERE espn_match_id = ? AND user_id = ?',
+    [matchId, userId],
+    (err, rows) => {
+      if (err) return res.status(500).json({ error: 'Error' });
+      res.json({ stars: rows[0]?.stars || null });
+    }
+  );
+});
+
+// GET rating promedio de un partido
+app.get('/api/ratings/:matchId', (req, res) => {
+  const { matchId } = req.params;
+  db.query(
+    'SELECT AVG(stars) as avg, COUNT(*) as count FROM match_ratings WHERE espn_match_id = ?',
+    [matchId],
+    (err, rows) => {
+      if (err) return res.status(500).json({ error: 'Error' });
+      res.json({ avgRating: parseFloat(rows[0]?.avg) || 0, count: rows[0]?.count || 0 });
+    }
+  );
+});
+// ────────────────────────────────────────────────────────────────────────────
+
+// ── LISTAS ───────────────────────────────────────────────────────────────────
+
+// GET listas del usuario
+app.get('/api/lists', requireAuth, (req, res) => {
+  const userId = req.user.id;
+  db.query(
+    `SELECT l.*, COUNT(li.id) as match_count
+     FROM user_lists l
+     LEFT JOIN list_items li ON l.id = li.list_id
+     WHERE l.user_id = ?
+     GROUP BY l.id
+     ORDER BY l.created_at DESC`,
+    [userId],
+    (err, rows) => {
+      if (err) return res.status(500).json({ error: 'Error' });
+      res.json(rows);
+    }
+  );
+});
+
+// POST crear lista
+app.post('/api/lists', requireAuth, (req, res) => {
+  const { name, description, icon } = req.body;
+  const userId = req.user.id;
+  if (!name) return res.status(400).json({ error: 'El nombre es requerido' });
+  db.query(
+    'INSERT INTO user_lists (user_id, name, description, icon) VALUES (?, ?, ?, ?)',
+    [userId, name, description || '', icon || 'bi-collection'],
+    (err, result) => {
+      if (err) return res.status(500).json({ error: 'Error creando lista' });
+      res.status(201).json({ id: result.insertId, name, description, icon, match_count: 0 });
+    }
+  );
+});
+
+// DELETE eliminar lista
+app.delete('/api/lists/:id', requireAuth, (req, res) => {
+  const userId = req.user.id;
+  db.query('DELETE FROM user_lists WHERE id = ? AND user_id = ?', [req.params.id, userId], (err, result) => {
+    if (err) return res.status(500).json({ error: 'Error' });
+    if (result.affectedRows === 0) return res.status(404).json({ error: 'Lista no encontrada' });
+    res.json({ success: true });
+  });
+});
+
+// POST agregar partido a lista
+app.post('/api/lists/:id/items', requireAuth, (req, res) => {
+  const { matchId, matchName, matchDate, leagueName } = req.body;
+  const userId = req.user.id;
+  db.query('SELECT id FROM user_lists WHERE id = ? AND user_id = ?', [req.params.id, userId], (err, rows) => {
+    if (err || !rows.length) return res.status(403).json({ error: 'Lista no encontrada' });
+    db.query(
+      'INSERT IGNORE INTO list_items (list_id, espn_match_id, match_name, match_date, league_name) VALUES (?, ?, ?, ?, ?)',
+      [req.params.id, matchId, matchName, matchDate, leagueName],
+      (err2, result) => {
+        if (err2) return res.status(500).json({ error: 'Error' });
+        res.status(201).json({ success: true });
+      }
+    );
+  });
+});
+
+// DELETE quitar partido de lista
+app.delete('/api/lists/:id/items/:matchId', requireAuth, (req, res) => {
+  db.query(
+    'DELETE FROM list_items WHERE list_id = ? AND espn_match_id = ?',
+    [req.params.id, req.params.matchId],
+    (err) => {
+      if (err) return res.status(500).json({ error: 'Error' });
+      res.json({ success: true });
+    }
+  );
+});
+// ────────────────────────────────────────────────────────────────────────────
+
+// POST new opinion (requiere auth)
+app.post('/api/opinions', requireAuth, (req, res) => {
   const { espn_match_id, user_name, avatar_url, content, parent_id } = req.body;
   
   if (!espn_match_id || !user_name || !content) {
