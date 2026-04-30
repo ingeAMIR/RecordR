@@ -1,7 +1,10 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { EspnService, MatchInfo } from '../../services/espn.service';
+import { AuthService, User } from '../../services/auth.service';
+import { RatingService } from '../../services/rating.service';
 
 interface SportTab {
   key: string;
@@ -16,7 +19,7 @@ interface SportTab {
   templateUrl: './matches.html',
   styleUrl: './matches.scss'
 })
-export class MatchesComponent implements OnInit {
+export class MatchesComponent implements OnInit, OnDestroy {
   matches: MatchInfo[] = [];
   filteredMatches: MatchInfo[] = [];
   activeFilter: string = 'all';
@@ -31,6 +34,9 @@ export class MatchesComponent implements OnInit {
   hoverRating: number = 0;
   userRatings: { [id: string]: number } = {};
 
+  currentUser: User | null = null;
+  private sub = new Subscription();
+
   sportTabs: SportTab[] = [
     { key: 'all',        label: 'Todos',   icon: 'bi-grid-fill' },
     { key: 'soccer',     label: 'Fútbol',  icon: 'bi-circle' },
@@ -39,9 +45,18 @@ export class MatchesComponent implements OnInit {
     { key: 'baseball',   label: 'MLB',     icon: 'bi-circle-fill' },
   ];
 
-  constructor(private espnService: EspnService, private cdr: ChangeDetectorRef) {}
+  constructor(
+    private espnService: EspnService,
+    private cdr: ChangeDetectorRef,
+    private authService: AuthService,
+    private ratingService: RatingService
+  ) {}
 
   ngOnInit(): void {
+    this.sub.add(
+      this.authService.currentUser$.subscribe(u => this.currentUser = u)
+    );
+
     this.espnService.getAllMatches().subscribe({
       next: (matches) => {
         this.matches = matches;
@@ -83,6 +98,14 @@ export class MatchesComponent implements OnInit {
     this.leagues = [...new Set(pool.map(m => m.league))];
   }
 
+  ngOnDestroy(): void {
+    this.sub.unsubscribe();
+  }
+
+  get isLoggedIn(): boolean {
+    return !!this.currentUser;
+  }
+
   private applyFilters(): void {
     let filtered = [...this.matches];
 
@@ -103,6 +126,22 @@ export class MatchesComponent implements OnInit {
     }
 
     this.filteredMatches = filtered;
+    this.loadUserRatingsForMatches(this.filteredMatches);
+  }
+
+  private loadUserRatingsForMatches(matches: MatchInfo[]): void {
+    if (!this.currentUser) return;
+    matches.forEach(m => {
+      // Only fetch if not already fetched to avoid spamming
+      if (this.userRatings[m.id] === undefined) {
+        this.ratingService.getUserRating(m.id, this.currentUser!.id).subscribe(r => {
+          if (r) {
+            this.userRatings[m.id] = r;
+            this.cdr.detectChanges();
+          }
+        });
+      }
+    });
   }
 
   getStars(rating: number): string {
@@ -141,6 +180,7 @@ export class MatchesComponent implements OnInit {
   openRating(event: Event, matchId: string) {
     event.preventDefault();
     event.stopPropagation();
+    if (!this.isLoggedIn) return; // Prevent opening if not logged in
     this.showRatingInputFor = matchId;
     this.hoverRating = 0;
   }
@@ -158,12 +198,16 @@ export class MatchesComponent implements OnInit {
   rateMatch(event: Event, match: MatchInfo, star: number) {
     event.preventDefault();
     event.stopPropagation();
+    if (!this.isLoggedIn) return;
+
     this.userRatings[match.id] = star;
-
-    const fakeTotalVotes = 10;
-    match.rating = ((match.rating * fakeTotalVotes) + star) / (fakeTotalVotes + 1);
-    match.rating = Math.round(match.rating * 10) / 10;
-
     this.showRatingInputFor = null;
+
+    this.ratingService.saveRating(match.id, this.currentUser!.id, star).subscribe(res => {
+      if (res.avgRating) {
+        match.rating = Math.round(res.avgRating * 10) / 10;
+        this.cdr.detectChanges();
+      }
+    });
   }
 }
