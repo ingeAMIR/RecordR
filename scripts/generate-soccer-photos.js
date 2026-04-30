@@ -98,7 +98,7 @@ async function main() {
 
       const squad = await getSquad(team.id);
       remaining--;
-      await sleep(600);
+      await sleep(6500);
 
       for (const apiPlayer of squad) {
         if (!apiPlayer.photo) continue;
