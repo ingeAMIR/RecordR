@@ -103,10 +103,23 @@ async function main() {
       for (const apiPlayer of squad) {
         if (!apiPlayer.photo) continue;
 
+        const apiNorm = norm(apiPlayer.name);
+        const apiLast = lastName(apiPlayer.name);
+
         // Intentar match por nombre completo normalizado primero
-        const fullMatch = byFullName.get(norm(apiPlayer.name));
-        const lastMatch = byLastName.get(lastName(apiPlayer.name));
-        const player    = fullMatch || lastMatch;
+        let player = byFullName.get(apiNorm);
+
+        if (!player) {
+          const candidates = ourPlayers.filter(p => lastName(p.name) === apiLast && !p.photo);
+          if (candidates.length === 1) {
+            player = candidates[0];
+          } else if (candidates.length > 1) {
+            // Try initial match
+            const apiInitial = apiNorm.charAt(0);
+            const byInitial = candidates.filter(p => norm(p.name).charAt(0) === apiInitial);
+            if (byInitial.length === 1) player = byInitial[0];
+          }
+        }
 
         if (player && !player.photo) {
           const idx = all.findIndex(p => p.id === player.id);
