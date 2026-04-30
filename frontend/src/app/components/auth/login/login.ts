@@ -32,7 +32,7 @@ export class LoginComponent implements OnInit {
   ngOnInit(): void {
     if (typeof window !== 'undefined' && 'google' in window) {
       google.accounts.id.initialize({
-        client_id: 'TU_CLIENT_ID_DE_GOOGLE.apps.googleusercontent.com', // Replace with real ID
+        client_id: '40870827937-hqis41sq1q1hau5tsu84iu15g5b28l64.apps.googleusercontent.com', // Replace with real ID
         callback: this.handleGoogleLogin.bind(this)
       });
       google.accounts.id.renderButton(
