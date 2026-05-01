@@ -30,7 +30,10 @@ export class RegisterComponent {
 
   onSubmit() {
     // If form is valid, register user
-    if (this.registerForm.invalid) return;
+    if (this.registerForm.invalid) {
+      this.error = 'Por favor, verifica tus datos. La contraseña debe tener al menos 6 caracteres.';
+      return;
+    }
 
     this.loading = true;
     this.error = '';

@@ -30,20 +30,31 @@ export class LoginComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    if (typeof window !== 'undefined' && 'google' in window) {
-      google.accounts.id.initialize({
-        client_id: '40870827937-hqis41sq1q1hau5tsu84iu15g5b28l64.apps.googleusercontent.com', // Replace with real ID
-        callback: this.handleGoogleLogin.bind(this)
-      });
-      google.accounts.id.renderButton(
-        document.getElementById('google-btn-container'), // Note: In case we want native button
-        { theme: 'outline', size: 'large' }
-      );
+    this.renderGoogleButton();
+  }
+
+  renderGoogleButton() {
+    if (typeof window !== 'undefined') {
+      if ((window as any).google) {
+        google.accounts.id.initialize({
+          client_id: '40870827937-hqis41sq1q1hau5tsu84iu15g5b28l64.apps.googleusercontent.com', // Replace with real ID
+          callback: this.handleGoogleLogin.bind(this)
+        });
+        google.accounts.id.renderButton(
+          document.getElementById('google-btn-container'), // Note: In case we want native button
+          { theme: 'outline', size: 'large', width: 340 }
+        );
+      } else {
+        setTimeout(() => this.renderGoogleButton(), 100);
+      }
     }
   }
 
   onSubmit() {
-    if (this.loginForm.invalid) return;
+    if (this.loginForm.invalid) {
+      this.error = 'Por favor, ingresa un correo válido y tu contraseña.';
+      return;
+    }
 
     this.loading = true;
     this.error = '';
@@ -57,14 +68,6 @@ export class LoginComponent implements OnInit {
         this.loading = false;
       }
     });
-  }
-
-  onGoogleLogin() {
-    if (typeof window !== 'undefined' && 'google' in window) {
-      google.accounts.id.prompt(); // shows OneTap prompt
-    } else {
-      console.log('Google Identity Services script not available');
-    }
   }
 
   handleGoogleLogin(response: any) {

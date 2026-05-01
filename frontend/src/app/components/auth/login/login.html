@@ -28,14 +28,11 @@
             </div>
 
             <div class="d-grid gap-2 mb-4">
-                <button type="submit" class="btn btn-primary btn-lg rounded-pill fw-bold shadow-glow" [disabled]="loginForm.invalid || loading">
+                <button type="submit" class="btn btn-primary btn-lg rounded-pill fw-bold shadow-glow" [disabled]="loading">
                     <span *ngIf="loading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
                     Iniciar Sesión
                 </button>
-                <button type="button" (click)="onGoogleLogin()"
-                    class="btn btn-outline-light btn-lg rounded-pill fw-bold border-secondary text-secondary hover-white">
-                    <i class="bi bi-google me-2"></i> Continuar con Google
-                </button>
+                <div id="google-btn-container" class="d-flex justify-content-center"></div>
             </div>
 
             <div class="text-center">
