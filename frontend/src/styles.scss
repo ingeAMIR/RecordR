@@ -2,34 +2,35 @@
 
 /* 1. Define Brand Colors First */
 :root {
-    --xports-bg: #14181c;
-    --xports-card-bg: #1e2228;
-    --xports-header-bg: #1a221d;
+    --xports-bg: #07090b; /* Even darker, richer background */
+    --xports-card-bg: rgba(22, 26, 32, 0.6);
+    --xports-header-bg: rgba(16, 20, 24, 0.8);
 
     /* Brand Colors */
-    --xports-primary: #00e054;
-    --xports-primary-hover: #00c048;
-    --xports-accent: #008f39;
+    --xports-primary: #00ff66; /* More vibrant neon green */
+    --xports-primary-hover: #00e054;
+    --xports-primary-glow: rgba(0, 255, 102, 0.4);
+    --xports-accent: #00a846;
 
     /* Text Colors */
     --xports-text: #ffffff;
-    --xports-text-secondary: #99bb9c;
-    --xports-text-muted: #566;
+    --xports-text-secondary: #a3c4a8;
+    --xports-text-muted: #6b7d70;
 
-    --xports-border: #2a332c;
+    --xports-border: rgba(255, 255, 255, 0.08);
+    --xports-glass-border: rgba(255, 255, 255, 0.1);
 }
 
 /* 2. Override Bootstrap Variables (Must be before import) */
-$primary: #00e054;
-$secondary: #99bb9c;
-$info: #00e054;
-/* Map info to green to kill blue */
-$success: #008f39;
-$dark: #1a221d;
-$body-bg: #14181c;
+$primary: #00ff66;
+$secondary: #a3c4a8;
+$info: #00ff66;
+$success: #00a846;
+$dark: #0f1411;
+$body-bg: #07090b;
 $body-color: #ffffff;
-$link-color: #99bb9c;
-$link-hover-color: #00e054;
+$link-color: #a3c4a8;
+$link-hover-color: #00ff66;
 
 /* 3. Import Bootstrap */
 @import 'bootstrap/scss/bootstrap';
@@ -40,7 +41,11 @@ html {
 }
 
 body {
-    background: radial-gradient(circle at top left, #0d2b18 0%, #08100b 40%, #000000 100%);
+    background-color: var(--xports-bg);
+    background-image: 
+        radial-gradient(circle at 15% 50%, rgba(0, 255, 102, 0.05), transparent 40%),
+        radial-gradient(circle at 85% 30%, rgba(0, 168, 70, 0.04), transparent 50%),
+        url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.02'/%3E%3C/svg%3E");
     background-attachment: fixed;
     color: var(--xports-text);
     font-family: 'Inter', sans-serif;
@@ -51,154 +56,139 @@ body {
     &::before {
         content: '';
         position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
+        top: -50%;
+        left: -50%;
+        width: 200vw;
+        height: 200vh;
         pointer-events: none;
-        background: radial-gradient(circle at 80% 20%, rgba(0, 224, 84, 0.08) 0%, transparent 40%),
-                    radial-gradient(circle at 20% 80%, rgba(0, 143, 57, 0.05) 0%, transparent 40%);
+        background: conic-gradient(from 0deg at 50% 50%, rgba(0, 255, 102, 0.05) 0deg, transparent 60deg, transparent 300deg, rgba(0, 255, 102, 0.05) 360deg);
         z-index: -1;
-        animation: pulseGlow 12s infinite alternate ease-in-out;
+        animation: rotateGlow 20s linear infinite;
     }
 }
 
-@keyframes pulseGlow {
-    0% { transform: scale(1) translate(0, 0); opacity: 0.6; }
-    50% { transform: scale(1.1) translate(-2%, 2%); opacity: 1; }
-    100% { transform: scale(1) translate(2%, -2%); opacity: 0.6; }
+@keyframes rotateGlow {
+    100% { transform: rotate(360deg); }
 }
 
 /* Stunning custom scrollbar */
 ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: 8px;
+    height: 8px;
 }
 ::-webkit-scrollbar-track {
-    background: #050a07;
+    background: #030504;
 }
 ::-webkit-scrollbar-thumb {
-    background: rgba(0, 224, 84, 0.3);
+    background: rgba(0, 255, 102, 0.2);
     border-radius: 10px;
+    border: 2px solid #030504;
 }
 ::-webkit-scrollbar-thumb:hover {
-    background: rgba(0, 224, 84, 0.6);
+    background: rgba(0, 255, 102, 0.6);
 }
 
 ::selection {
-    background: rgba(0, 224, 84, 0.3);
+    background: rgba(0, 255, 102, 0.4);
     color: #fff;
+    text-shadow: 0 0 5px rgba(255,255,255,0.5);
 }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6,
-.brand-font {
+h1, h2, h3, h4, h5, h6, .brand-font {
     font-family: 'Outfit', sans-serif;
     color: #fff;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.03em;
 }
 
-/* Ensure links are never default blue */
 a {
     color: var(--xports-text-secondary);
     text-decoration: none;
-    transition: color 0.15s ease-in-out;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 
     &:hover {
         color: var(--xports-primary);
+        text-shadow: 0 0 15px var(--xports-primary-glow);
     }
 }
 
 /* Utility Overrides */
-.text-muted {
-    color: var(--xports-text-secondary) !important;
+.text-muted { color: var(--xports-text-muted) !important; }
+.text-info { color: var(--xports-primary) !important; }
+.bg-dark { background-color: var(--xports-header-bg) !important; }
+
+/* ── ADVANCED GLASSMORPHISM UTILITIES ── */
+.glass-panel {
+    background: var(--xports-card-bg);
+    backdrop-filter: blur(24px) saturate(150%);
+    -webkit-backdrop-filter: blur(24px) saturate(150%);
+    border: 1px solid var(--xports-glass-border);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
-.text-info {
-    color: var(--xports-primary) !important;
+.text-gradient {
+    background: linear-gradient(135deg, #ffffff 0%, #a3c4a8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
-.bg-dark {
-    background-color: var(--xports-header-bg) !important;
+.text-gradient-primary {
+    background: linear-gradient(135deg, #00ff66 0%, #00a846 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 0 0 30px rgba(0, 255, 102, 0.3);
 }
 
 /* Custom Components */
-.navbar-xports {
-    background-color: #101216;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
-
-    .navbar-brand {
-        font-family: 'Outfit', sans-serif;
-        font-weight: 900;
-        font-size: 1.75rem;
-        color: #fff;
-        letter-spacing: -1px;
-
-        span {
-            color: var(--xports-primary);
-        }
-    }
-}
-
-.nav-link {
-    color: #9cb !important;
-    font-weight: 600;
-    text-transform: uppercase;
-    font-size: 0.8rem;
-    letter-spacing: 0.05em;
-
-    &:hover,
-    &.active {
-        color: #fff !important;
-        text-shadow: 0 0 10px rgba(0, 224, 84, 0.3);
-    }
-}
-
 .btn-primary {
-    background-color: var(--xports-primary);
-    border: none;
-    color: #05100a;
-    font-weight: 700;
+    background: linear-gradient(135deg, var(--xports-primary) 0%, #00d254 100%);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #000;
+    font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    padding: 0.6rem 1.5rem;
+    padding: 0.7rem 1.8rem;
+    box-shadow: 0 4px 15px rgba(0, 255, 102, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 
     &:hover {
-        background-color: #fff;
+        background: linear-gradient(135deg, #ffffff 0%, #e0e0e0 100%);
         color: #000;
-        transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(0, 224, 84, 0.3);
+        transform: translateY(-3px) scale(1.02);
+        box-shadow: 0 12px 25px rgba(0, 255, 102, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+        border-color: #fff;
     }
 }
 
-.match-poster {
-    transition: transform 0.2s;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+.btn-outline-light {
+    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    padding: 0.7rem 1.8rem;
+    font-weight: 700;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 
     &:hover {
-        transform: scale(1.02);
-        border-color: #00e054;
-        z-index: 10;
-        box-shadow: 0 0 15px rgba(0, 224, 84, 0.2);
+        background: rgba(255, 255, 255, 0.15);
+        border-color: rgba(255, 255, 255, 0.4);
+        box-shadow: 0 8px 20px rgba(255, 255, 255, 0.1);
+        transform: translateY(-3px);
     }
 }
 
-/* Input Fields */
 .form-control {
-    background-color: #1e2620;
-    border: 1px solid #3a4b40;
+    background-color: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--xports-glass-border);
     color: #fff;
+    transition: all 0.3s ease;
 
     &:focus {
-        background-color: #fff;
-        color: #000;
-        border-color: #00e054;
-        box-shadow: 0 0 0 0.25rem rgba(0, 224, 84, 0.25);
+        background-color: rgba(0, 0, 0, 0.6);
+        color: #fff;
+        border-color: var(--xports-primary);
+        box-shadow: 0 0 0 4px rgba(0, 255, 102, 0.15);
     }
 }
 
@@ -206,7 +196,6 @@ a {
    ADVANCED MOUSE/POINTER INTERACTIVE EFFECTS 
    ========================================================== */
 
-/* 1. Ambient SpotLight Tracker */
 body.custom-cursor-enabled::after {
     content: '';
     position: fixed;
@@ -215,41 +204,56 @@ body.custom-cursor-enabled::after {
     width: 100vw;
     height: 100vh;
     pointer-events: none;
-    /* Uses CSS variables updated dynamically by Angular app.ts HostListener */
-    background: radial-gradient(400px circle at var(--mouse-x, 50vw) var(--mouse-y, 50vh), rgba(0, 224, 84, 0.04), transparent 50%);
+    background: radial-gradient(600px circle at var(--mouse-x, 50vw) var(--mouse-y, 50vh), rgba(0, 255, 102, 0.06), transparent 40%);
     z-index: 1000;
+    mix-blend-mode: screen;
 }
 
-/* 2. Hide default cursor */
 .custom-cursor-enabled, 
 .custom-cursor-enabled * {
     cursor: none !important;
 }
 
-/* 3. Center Dot (Instant Follow) */
 .cursor-dot {
     position: fixed;
     top: -50px;
     left: -50px;
-    width: 6px;
-    height: 6px;
+    width: 8px;
+    height: 8px;
     background-color: var(--xports-primary);
     border-radius: 50%;
     transform: translate(-50%, -50%);
     pointer-events: none;
     z-index: 999999;
-    box-shadow: 0 0 8px var(--xports-primary);
-    transition: transform 0.2s ease, opacity 0.2s ease, width 0.2s ease, height 0.2s ease, background-color 0.2s ease;
+    box-shadow: 0 0 12px var(--xports-primary), 0 0 20px var(--xports-primary);
+    transition: transform 0.1s ease, width 0.2s ease, height 0.2s ease, background-color 0.2s ease;
 }
 
-/* 4. Hover States for clickable elements */
-.cursor-hovering.cursor-dot {
-    width: 40px;
-    height: 40px;
-    background-color: rgba(0, 224, 84, 0.2);
-    border: 1px solid rgba(0, 224, 84, 0.8);
-    box-shadow: 0 0 15px rgba(0, 224, 84, 0.4);
+/* Cursor Trail Effect */
+.cursor-trail {
+    position: fixed;
+    width: 30px;
+    height: 30px;
+    border: 1px solid rgba(0, 255, 102, 0.3);
+    border-radius: 50%;
     transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 999998;
+    transition: top 0.15s ease-out, left 0.15s ease-out, width 0.2s, height 0.2s;
+}
+
+.cursor-hovering.cursor-dot {
+    width: 50px;
+    height: 50px;
+    background-color: rgba(0, 255, 102, 0.1);
+    border: 1px solid rgba(0, 255, 102, 0.8);
+    box-shadow: 0 0 20px rgba(0, 255, 102, 0.4);
+    backdrop-filter: invert(10%);
+}
+
+.cursor-hovering ~ .cursor-trail {
+    opacity: 0;
+    transform: scale(0.5);
 }
 
 /* ==========================================================
@@ -257,87 +261,20 @@ body.custom-cursor-enabled::after {
    ========================================================== */
 
 @media (max-width: 991px) {
-    /* Desactiva cursor personalizado en móvil/tablet */
-    .custom-cursor-enabled,
-    .custom-cursor-enabled * {
-        cursor: auto !important;
-    }
-    .cursor-dot {
-        display: none !important;
-    }
-    body::after {
-        display: none !important;
-    }
+    .custom-cursor-enabled, .custom-cursor-enabled * { cursor: auto !important; }
+    .cursor-dot, .cursor-trail { display: none !important; }
+    body::after { display: none !important; }
 
-    /* Contenedor principal con padding lateral suficiente */
-    .container,
-    .container-fluid {
-        padding-left: 16px !important;
-        padding-right: 16px !important;
-    }
+    .container, .container-fluid { padding-left: 20px !important; padding-right: 20px !important; }
 
-    /* Headings más pequeños en móvil */
-    .display-3 { font-size: 2rem !important; }
-    .display-4 { font-size: 1.75rem !important; }
-    .display-5 { font-size: 1.5rem !important; }
+    .display-3 { font-size: 2.5rem !important; }
+    .display-4 { font-size: 2rem !important; }
+    
+    h1.display-3 { font-size: 2.8rem !important; line-height: 1.1 !important; }
 
-    /* Hero section */
-    h1.display-3 {
-        font-size: 2.2rem !important;
-        line-height: 1.15 !important;
-    }
-
-    /* Cards de tendencias — 2 columnas en móvil, no 4 */
-    .row-cols-2 > .col {
-        flex: 0 0 50%;
-        max-width: 50%;
-    }
-
-    /* Partidos — 1 columna en móvil */
-    .col-12.col-md-6.col-lg-4 {
-        flex: 0 0 100%;
-        max-width: 100%;
-    }
-
-    /* Sección hero: ocultar tarjetas flotantes */
-    .float-card,
-    .float-card-delayed,
-    .float-card-slow {
-        display: none !important;
-    }
-
-    /* Estadísticas del hero en fila */
-    .mt-5.d-flex.gap-4 {
-        gap: 1rem !important;
-    }
-
-    /* Botones hero en columna en pantallas muy pequeñas */
-    @media (max-width: 480px) {
-        .d-flex.gap-3 > .btn {
-            padding-left: 1.2rem !important;
-            padding-right: 1.2rem !important;
-        }
-    }
-
-    /* Jugadores — 2 columnas en móvil */
-    .row-cols-md-3.row-cols-lg-6 > .col {
-        flex: 0 0 50%;
-        max-width: 50%;
-    }
-
-    /* Padding de secciones */
-    .py-5 {
-        padding-top: 2.5rem !important;
-        padding-bottom: 2.5rem !important;
-    }
-
-    /* Tabs de deporte en matches — scroll horizontal */
-    .d-flex.flex-wrap.gap-2:has(.sport-tab) {
-        flex-wrap: nowrap !important;
-        overflow-x: auto !important;
-        padding-bottom: 4px;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: none;
-        &::-webkit-scrollbar { display: none; }
-    }
+    .row-cols-2 > .col { flex: 0 0 50%; max-width: 50%; }
+    .float-card, .float-card-delayed, .float-card-slow { display: none !important; }
+    .mt-5.d-flex.gap-4 { gap: 1.5rem !important; flex-wrap: wrap; justify-content: center; text-align: center; }
+    .mt-5.d-flex.gap-4 > div { flex: 1 1 30%; min-width: 100px; text-align: center !important; }
+    .vr { display: none; }
 }

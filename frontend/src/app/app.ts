@@ -29,6 +29,13 @@ export class App implements AfterViewInit {
       dot.style.left = `${this.mouseX}px`;
       dot.style.top = `${this.mouseY}px`;
     }
+
+    // Update the trail position (CSS transition handles the smooth delay)
+    const trail = document.getElementById('cursorTrail');
+    if (trail) {
+      trail.style.left = `${this.mouseX}px`;
+      trail.style.top = `${this.mouseY}px`;
+    }
   }
 
   @HostListener('document:mouseover', ['$event'])
@@ -37,10 +44,12 @@ export class App implements AfterViewInit {
     const isClickable = target.closest('a') || target.closest('button') || target.closest('.brand-glow') || target.closest('[routerLink]');
     
     const dot = document.getElementById('cursorDot');
-    if (isClickable && dot) {
-      dot.classList.add('cursor-hovering');
-    } else if (dot) {
-      dot.classList.remove('cursor-hovering');
+    if (dot) {
+      if (isClickable) {
+        dot.classList.add('cursor-hovering');
+      } else {
+        dot.classList.remove('cursor-hovering');
+      }
     }
   }
 
