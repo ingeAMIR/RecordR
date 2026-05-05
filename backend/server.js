@@ -243,6 +243,53 @@ app.put('/api/auth/profile/:id', requireAuth, upload.single('avatarFile'), (req,
   });
 });
 
+// GET Activity Feed
+app.get('/api/activity', (req, res) => {
+  const query = `
+    (
+      SELECT mo.user_name as user,
+             'escribió una reseña' as action,
+             mo.espn_match_id as matchId,
+             NULL as stars,
+             mo.created_at as time
+      FROM match_opinions mo
+    )
+    UNION ALL
+    (
+      SELECT u.username as user,
+             'calificó un partido' as action,
+             mr.espn_match_id as matchId,
+             mr.stars as stars,
+             mr.created_at as time
+      FROM match_ratings mr
+      JOIN users u ON mr.user_id = u.id
+    )
+    ORDER BY time DESC
+    LIMIT 10;
+  `;
+
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error('Error fetching activity:', err);
+      return res.status(500).json({ error: 'Database error' });
+    }
+    const formatted = results.map(row => {
+      let starsStr = '';
+      if (row.stars) {
+        starsStr = '★'.repeat(row.stars) + '☆'.repeat(5 - row.stars);
+      }
+      return {
+        user: row.user,
+        action: row.action,
+        matchId: row.matchId,
+        stars: starsStr,
+        time: row.time
+      };
+    });
+    res.json(formatted);
+  });
+});
+
 // GET Opinions by match ID
 app.get('/api/opinions/:matchId', (req, res) => {
   const { matchId } = req.params;

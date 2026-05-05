@@ -1,9 +1,10 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { Subscription, combineLatest } from 'rxjs';
 import { PlayerService, PlayerData } from '../../services/player.service';
 import { EspnService, MatchInfo } from '../../services/espn.service';
+import { ActivityService, ActivityItem as ApiActivityItem } from '../../services/activity.service';
 
 interface HowItWorksStep {
   icon: string;
@@ -49,6 +50,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   constructor(
     private playerService: PlayerService,
     private espnService: EspnService,
+    private activityService: ActivityService,
     private cdr: ChangeDetectorRef
   ) {}
 
@@ -68,10 +70,25 @@ export class HomeComponent implements OnInit, OnDestroy {
     );
 
     this.subs.add(
-      this.espnService.getAllMatches().subscribe({
-        next: (matches) => {
+      combineLatest([
+        this.espnService.getAllMatches(),
+        this.activityService.getRecentActivity()
+      ]).subscribe({
+        next: ([matches, activities]: [MatchInfo[], ApiActivityItem[]]) => {
           this.trendingMatches = this.pickTrending(matches);
           this.trendingLoading = false;
+          
+          this.recentActivity = activities.map((a: ApiActivityItem) => {
+            const match = matches.find((m: MatchInfo) => m.id === a.matchId);
+            return {
+              user: a.user,
+              action: a.action,
+              match: match ? `${match.homeTeam} vs ${match.awayTeam}` : 'Partido',
+              stars: a.stars,
+              time: this.formatTime(a.time)
+            };
+          });
+
           this.cdr.detectChanges();
         },
         error: () => {
@@ -144,36 +161,19 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
   ];
 
-  recentActivity: ActivityItem[] = [
-    {
-      user: 'Carlos M.',
-      action: 'calificó un partido',
-      match: 'Arsenal vs Liverpool',
-      stars: '★★★★★',
-      time: 'hace 2m'
-    },
-    {
-      user: 'Ana R.',
-      action: 'escribió una reseña',
-      match: 'Real Madrid vs Barcelona',
-      stars: '★★★★☆',
-      time: 'hace 5m'
-    },
-    {
-      user: 'Diego L.',
-      action: 'creó una lista',
-      match: 'Mejores Finales UCL',
-      stars: '',
-      time: 'hace 8m'
-    },
-    {
-      user: 'Sofia P.',
-      action: 'calificó un partido',
-      match: 'Lakers vs Celtics',
-      stars: '★★★★★',
-      time: 'hace 12m'
-    }
-  ];
+  recentActivity: ActivityItem[] = [];
+
+  formatTime(isoString: string): string {
+    const d = new Date(isoString);
+    const now = new Date();
+    const diffMs = now.getTime() - d.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    if (diffMins < 1) return 'hace instantes';
+    if (diffMins < 60) return `hace ${diffMins}m`;
+    const diffHours = Math.floor(diffMins / 60);
+    if (diffHours < 24) return `hace ${diffHours}h`;
+    return `hace ${Math.floor(diffHours / 24)}d`;
+  }
 
   popularLists: ListItem[] = [
     {
