@@ -7,6 +7,7 @@ import { EspnService, MatchInfo } from '../../services/espn.service';
 import { OpinionService, Opinion } from '../../services/opinion.service';
 import { AuthService, User } from '../../services/auth.service';
 import { RatingService } from '../../services/rating.service';
+import { ListsService, UserList } from '../../services/lists.service';
 
 @Component({
   selector: 'app-match-detail',
@@ -29,6 +30,9 @@ export class MatchDetailComponent implements OnInit, OnDestroy {
   opinions: Opinion[] = [];
   loadingOpinions = true;
 
+  userLists: UserList[] = [];
+  showListsModal = false;
+
   currentUser: User | null = null;
   private sub = new Subscription();
 
@@ -38,11 +42,17 @@ export class MatchDetailComponent implements OnInit, OnDestroy {
     private opinionService: OpinionService,
     private authService: AuthService,
     private ratingService: RatingService,
+    private listsService: ListsService,
   ) {}
 
   ngOnInit(): void {
     this.sub.add(
-      this.authService.currentUser$.subscribe(u => this.currentUser = u)
+      this.authService.currentUser$.subscribe(u => {
+        this.currentUser = u;
+        if (this.isLoggedIn) {
+          this.loadUserLists();
+        }
+      })
     );
 
     this.route.paramMap.subscribe(params => {
@@ -64,6 +74,44 @@ export class MatchDetailComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void { this.sub.unsubscribe(); }
+
+  // ── Listas ───────────────────────────────────────────────────────────────
+
+  loadUserLists(): void {
+    this.listsService.getLists().subscribe(lists => {
+      this.userLists = lists;
+    });
+  }
+
+  openListsModal(): void {
+    if (!this.isLoggedIn) return;
+    this.showListsModal = true;
+  }
+
+  closeListsModal(): void {
+    this.showListsModal = false;
+  }
+
+  addToList(list: UserList): void {
+    if (!this.match || !this.isLoggedIn) return;
+    const item = {
+      matchId: this.match.id,
+      matchName: `${this.match.homeTeam} vs ${this.match.awayTeam}`,
+      matchDate: this.match.date,
+      leagueName: this.match.league
+    };
+    this.listsService.addMatch(list.id, item).subscribe({
+      next: () => {
+        alert(`Añadido a la lista "${list.name}"`);
+        this.closeListsModal();
+      },
+      error: () => {
+        // Asume que si falla es porque ya está en la lista (basado en el unique constraint)
+        alert('Este partido ya está en la lista.');
+        this.closeListsModal();
+      }
+    });
+  }
 
   // ── Datos del usuario actual ─────────────────────────────────────────────
 

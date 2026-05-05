@@ -13,10 +13,10 @@ export interface UserList {
 }
 
 export interface ListItem {
-  espn_match_id: string;
-  match_name: string;
-  match_date: string;
-  league_name: string;
+  matchId: string;
+  matchName: string;
+  matchDate: string;
+  leagueName: string;
 }
 
 @Injectable({ providedIn: 'root' })
