@@ -77,10 +77,10 @@ export class PlayerService {
       'Attacking Midfield': 'Mediapunta',
       'Defensive Midfield': 'Mediocentro Defensivo',
       'Midfielder': 'Mediocampista',
-      'Small Forward': 'Alero',
-      'Point Guard': 'Base',
-      'Shooting Guard': 'Escolta',
-      'Power Forward': 'Ala-Pívot',
+      'Small Forward': 'Alero / Ala-Pívot',
+      'Point Guard': 'Base / Escolta',
+      'Shooting Guard': 'Base / Escolta',
+      'Power Forward': 'Alero / Ala-Pívot',
       'Center': 'Pívot',
     };
     return positionMap[position] || position;

@@ -165,7 +165,7 @@ export class PlayersComponent implements OnInit, OnDestroy {
   getPositionColor(g: string): string {
     const m: Record<string,string> = {
       'Portero':'#f59e0b','Defensa':'#3b82f6','Mediocampista':'#8b5cf6','Delantero':'#ef4444',
-      'Base':'#f59e0b','Escolta':'#3b82f6','Alero':'#8b5cf6','Ala-Pívot':'#ec4899','Pívot':'#14b8a6',
+      'Base / Escolta':'#f59e0b','Alero / Ala-Pívot':'#3b82f6','Pívot':'#14b8a6',
       'QB':'#ef4444','RB':'#f59e0b','WR':'#3b82f6','TE':'#8b5cf6','OL':'#6b7280','DL':'#dc2626','LB':'#059669','DB':'#0ea5e9','K/P':'#94a3b8',
       'Lanzador':'#ef4444','Receptor':'#f59e0b','Cuadro':'#3b82f6','Outfield':'#8b5cf6','DH':'#14b8a6',
     };
