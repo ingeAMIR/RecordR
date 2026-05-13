@@ -1,7 +1,8 @@
-import { Component, inject, HostListener } from '@angular/core';
+import { Component, inject, HostListener, OnInit } from '@angular/core';
 import { RouterModule, Router, NavigationEnd } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
+import { EspnService, MatchInfo } from '../../services/espn.service';
 import { filter } from 'rxjs/operators';
 
 @Component({
@@ -11,11 +12,13 @@ import { filter } from 'rxjs/operators';
   templateUrl: './navbar.html',
   styleUrl: './navbar.scss',
 })
-export class Navbar {
+export class Navbar implements OnInit {
   authService = inject(AuthService);
+  espnService = inject(EspnService);
   private router = inject(Router);
 
   menuOpen = false;
+  tickerMatches: MatchInfo[] = [];
 
   constructor() {
     // Cierra el menú al navegar
@@ -23,6 +26,20 @@ export class Navbar {
       filter(e => e instanceof NavigationEnd)
     ).subscribe(() => {
       this.menuOpen = false;
+    });
+  }
+
+  ngOnInit() {
+    this.espnService.getAllMatches().subscribe(matches => {
+      // Prioritize live matches, then recent completed, then upcoming
+      const live = matches.filter(m => m.status === 'in');
+      const upcoming = matches.filter(m => m.status === 'pre');
+      const completed = matches.filter(m => m.completed);
+      
+      // Take up to 10 matches for the ticker
+      let selected = [...live, ...completed.slice(0, 5), ...upcoming.slice(0, 5)];
+      // Shuffle or just slice to 10
+      this.tickerMatches = selected.slice(0, 10);
     });
   }
 

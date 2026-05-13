@@ -101,18 +101,18 @@
         <div class="ticker-scroll">
             <div class="ticker mono">
                 <ng-container *ngFor="let i of [1, 2]">
-                    <span><span class="text-muted">LALIGA · 65'</span> &nbsp; REAL MADRID <span class="tnum fw-bold text-white">2</span> – <span class="tnum fw-bold text-primary">3</span> BARCELONA</span>
-                    <span class="text-secondary opacity-50">•</span>
-                    <span><span class="text-muted">PREMIER · 42'</span> &nbsp; ARSENAL <span class="tnum fw-bold text-primary">1</span> – <span class="tnum text-white">0</span> CHELSEA</span>
-                    <span class="text-secondary opacity-50">•</span>
-                    <span><span class="text-muted">SERIE A · FT</span> &nbsp; INTER <span class="tnum text-white">2</span> – <span class="tnum fw-bold text-primary">4</span> JUVENTUS</span>
-                    <span class="text-secondary opacity-50">•</span>
-                    <span><span class="text-muted">BUNDESLIGA · 78'</span> &nbsp; B. MUNICH <span class="tnum fw-bold text-primary">3</span> – <span class="tnum text-white">1</span> DORTMUND</span>
-                    <span class="text-secondary opacity-50">•</span>
-                    <span><span class="text-muted">UCL · 19:00</span> &nbsp; MAN CITY vs PSG</span>
-                    <span class="text-secondary opacity-50">•</span>
-                    <span><span class="text-muted">RATINGS HOY</span> &nbsp; <span class="text-primary">▲</span> BELLINGHAM <span class="tnum">9.4</span> · <span class="text-primary">▲</span> VINICIUS <span class="tnum">9.1</span> · <span class="text-danger">▼</span> COURTOIS <span class="t-num">4.2</span></span>
-                    <span class="text-secondary opacity-50">•</span>
+                    <ng-container *ngFor="let m of tickerMatches">
+                        <span>
+                            <span class="text-muted text-uppercase">{{ m.league }} · {{ m.status === 'in' ? m.statusDetail : (m.completed ? 'FT' : (m.date | date:'HH:mm')) }}</span>
+                            &nbsp; <span class="text-uppercase">{{ m.homeAbbrev || m.homeTeam | slice:0:3 }}</span>
+                            <span class="tnum fw-bold text-white ms-1">{{ m.homeScore !== '-' ? m.homeScore : '' }}</span>
+                            <span class="tnum fw-bold text-white mx-1" *ngIf="m.homeScore !== '-'">–</span>
+                            <span class="text-uppercase" *ngIf="m.homeScore === '-'"> VS </span>
+                            <span class="tnum fw-bold text-primary me-1">{{ m.awayScore !== '-' ? m.awayScore : '' }}</span>
+                            <span class="text-uppercase">{{ m.awayAbbrev || m.awayTeam | slice:0:3 }}</span>
+                        </span>
+                        <span class="text-secondary opacity-50">•</span>
+                    </ng-container>
                 </ng-container>
             </div>
         </div>
