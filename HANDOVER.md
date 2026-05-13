@@ -1,5 +1,5 @@
 # 📋 RecordR — Handover Document
-**Fecha:** 2026-04-30  
+**Fecha:** 2026-05-13  
 **Proyecto:** RecordR — Red social deportiva (estilo Letterboxd para deportes)  
 **Repo:** https://github.com/ingeAMIR/RecordR  
 **Estado:** En producción · Desarrollo activo
@@ -64,7 +64,7 @@
          │             │                    │
          ▼             ▼                    ▼
   /api/auth/*    /api/opinions/*      /api/ratings/*
-  /api/lists/*   (con JWT Bearer)     /api/espn/*
+  /api/lists/*   /api/activity        /api/espn/*
          │             │
 ┌────────▼─────────────▼──────────────────────────────────┐
 │         Render Free (recordr-api.onrender.com)          │
@@ -72,6 +72,7 @@
 │                                                         │
 │  Rutas públicas:   GET /api/opinions/:matchId           │
 │                    GET /api/ratings/:matchId            │
+│                    GET /api/activity                    │
 │                    POST /api/auth/login|register        │
 │                    GET /espn/* (proxy ESPN)             │
 │                    GET /thesportsdb/* (proxy TDB)       │
@@ -94,9 +95,9 @@
 └─────────────────────────────────────────────────────────┘
 
 DATOS ESTÁTICOS (sin API en runtime):
-  /data/players.json  →  7,865 jugadores pre-generados
+  /data/players.json  →  8,010 jugadores pre-generados
   Contenido: Fútbol (6 ligas), NBA, NFL, MLB
-  Fotos soccer: ~19% (700+ jugadores)
+  Fotos soccer: ~90% (vía API-Football y Wikipedia)
   Fotos NBA/NFL/MLB: 100% (ESPN CDN)
   Regenerar con: node scripts/generate-players.js
                  node scripts/generate-soccer-photos.js API_KEY
@@ -106,16 +107,14 @@ DATOS ESTÁTICOS (sin API en runtime):
 ```
 scripts/generate-players.js        →  ESPN API (directo, Node.js)
 scripts/generate-soccer-photos.js  →  API-Football /players/squads
-                                   →  Wikipedia API (fallback)
+scripts/enrich-photos.js           →  Wikipedia API (fallback)
                                    →  frontend/public/data/players.json
                                    →  Build Angular → incluido en bundle
 ```
 
-### Proxy de ESPN (CORS fix)
-El backend actúa como proxy para endpoints de ESPN que bloquean CORS desde el browser:
-- `GET /espn/apis/site/v2/sports/soccer/{league}/teams` → ESPN
-- `GET /espn/apis/site/v2/sports/soccer/{league}/teams/{id}/roster` → ESPN
-- NBA/NFL/MLB roster endpoints NO necesitan proxy (ESPN permite CORS en esos)
+### Proxy y Rendimiento (ESPN)
+- **CORS:** El backend actúa como proxy para endpoints de ESPN que bloquean CORS desde el browser (rosters de soccer).
+- **Caché de Partidos:** Para evitar lentitud extrema al navegar, el frontend implementa una caché en memoria en `EspnService` usando RxJS `shareReplay(1)`. Las más de 30 peticiones HTTP a ESPN se guardan durante 5 minutos, haciendo la navegación instantánea después del primer load.
 
 ---
 
@@ -130,11 +129,11 @@ El backend actúa como proxy para endpoints de ESPN que bloquean CORS desde el b
 
 ### Comportamiento del plan Free de Render
 - El backend "duerme" tras 15 minutos de inactividad
-- El primer request tarda ~30 segundos en despertar
-- Con usuarios activos no duerme
+- El primer request tarda ~50 segundos en despertar (esto puede causar que la carga inicial de conversaciones en un partido parezca lenta, pero luego es instantánea).
+- Con usuarios activos no duerme.
 
 ### CI/CD
-**No hay pipeline automático.** El deploy es manual:
+**No hay pipeline automático integrado con GitHub todavía para Pages.** El deploy sigue siendo manual mediante Wrangler:
 
 ```bash
 # 1. Build frontend
@@ -153,14 +152,7 @@ npx wrangler pages deploy dist/frontend/browser \
   --commit-dirty=true
 
 # 4. Render redeploya automáticamente con cada push a main
-#    (si está conectado al repo ingeAMIR/RecordR en Render dashboard)
 ```
-
-### Archivos clave de deployment
-- `render.yaml` — configuración del servicio Render
-- `frontend/public/_redirects` — SPA routing en Cloudflare Pages
-- `frontend/angular.json` — build config, budgets aumentados
-- `frontend/proxy.conf.json` — proxy dev server (solo local)
 
 ---
 
@@ -187,32 +179,12 @@ API_FOOTBALL_KEY=25999792cebaba43e105fc133cc96fcc
 # Wikipedia → pública, sin key
 ```
 
-### frontend/src/environments/environment.ts (local dev)
-```typescript
-export const environment = {
-  production: false,
-  apiUrl: 'http://localhost:3000',
-};
-```
-
 ### frontend/src/environments/environment.prod.ts (Cloudflare Pages)
 ```typescript
 export const environment = {
   production: true,
-  apiUrl: 'https://recordr-api.onrender.com',
+  apiUrl: 'https://recordr-api.onrender.com', // Corregido: recordr, no recorder
 };
-```
-
-### Cuentas y servicios
-```
-TiDB Cloud:      amirgoyri@gmail.com
-Cloudflare:      cuenta GitHub ingeAMIR (OAuth)
-Render:          cuenta GitHub ingeAMIR (OAuth)
-GitHub:          ingeAMIR/RecordR (repo público)
-API-Football:    amirgoyri@gmail.com
-                 Key: 25999792cebaba43e105fc133cc96fcc
-                 Límite: 100 req/día (se resetea a medianoche)
-Wrangler CLI:    autenticado localmente (token en ~/.wrangler)
 ```
 
 ---
@@ -221,80 +193,39 @@ Wrangler CLI:    autenticado localmente (token en ~/.wrangler)
 
 ### Autenticación
 - [x] Registro con email + contraseña (bcrypt)
-- [x] Login con JWT (30 días de expiración)
+- [x] Login con JWT y Google OAuth (Natívo)
+- [x] Corrección de validación visual de formularios (ahora muestra errores claros).
 - [x] Perfil editable (username, email, avatar)
-- [x] HTTP Interceptor que adjunta JWT a todos los requests al backend
-- [x] AuthGuard en ruta `/profile` → redirige a `/login` si no autenticado
+- [x] AuthGuard y JWT Interceptor
 
-### Partidos
-- [x] Listado en vivo vía ESPN API (Soccer, NBA, NFL, MLB)
-- [x] Filtros por deporte (tabs), liga y estado (live/final/próximo)
-- [x] Detalle de partido con opiniones
-- [x] Rating por partido — guardado en DB (`match_ratings`)
-- [x] Rating promedio calculado en backend
+### Partidos & UI v2
+- [x] Rediseño v2 implementado: Navbar isla, diseño editorial de detalles y perfil.
+- [x] Ticker de resultados en vivo (estilo Bloomberg) pegado bajo la navbar. Conectado al backend/ESPN.
+- [x] Listado en vivo vía ESPN API. Caché RxJS integrada (carga instantánea).
+- [x] Detalle de partido con opiniones y gráficas (Rediseño aplicado).
+- [x] Rating por partido — conectado a DB y actualizado de forma optimista.
 
-### Opiniones
-- [x] Publicar opinión (requiere auth) con usuario y avatar reales
-- [x] Respuestas anidadas (threading)
-- [x] Like/unlike con actualización optimista
-- [x] Carga de opiniones con estado "likedByMe" por usuario
+### Opiniones & Actividad
+- [x] Publicar opinión y respuestas anidadas.
+- [x] Like/unlike en tiempo real.
+- [x] Textarea de opiniones arreglado en su diseño visual (usa todo el ancho).
+- [x] **NUEVO:** Feed de actividad global en la pantalla Home (`/api/activity`) consumiendo datos reales de valoraciones y reseñas.
 
 ### Jugadores
-- [x] 7,865 jugadores cargados desde JSON estático
-- [x] Fotos: NBA/NFL/MLB 100%, Soccer ~19%
-- [x] Filtros: sport tabs, liga, equipo, posición, búsqueda local
-- [x] Búsqueda global ESPN (endpoint `/search/v2`) — encuentra cualquier jugador
-- [x] Caché en localStorage (7 días)
-- [x] Ligas: LaLiga, PL, Bundesliga, Ligue 1, Serie A, Liga MX, NBA, NFL, MLB
+- [x] 8,010 jugadores cargados.
+- [x] Fotos de soccer completadas al **90%** (fusionando API-Football y Wikipedia).
+- [x] **NUEVO:** Filtros de posición arreglados en NBA (Guard→Base/Escolta, etc.) y NFL (Place Kicker→K/P).
+- [x] Búsqueda global ESPN y Caché local.
 
 ### Listas
-- [x] Crear/eliminar listas — guardadas en DB (`user_lists`, `list_items`)
-- [x] Persistencia real entre dispositivos (requiere auth)
-
-### Infraestructura
-- [x] Backend proxy para ESPN (evita CORS en soccer rosters)
-- [x] Backend proxy para TheSportsDB
-- [x] JWT middleware (`requireAuth`) en rutas protegidas
-- [x] Validación de ownership en edición de perfil
-- [x] CORS configurado para Cloudflare Pages
+- [x] Crear/eliminar listas en el Perfil.
+- [x] **NUEVO:** Botón "Añadir a lista" implementado en la UI del detalle de cada partido (abre modal, guarda en BD).
 
 ---
 
 ## 6. Pendientes e Issues Abiertos
 
-### 🔴 Alta prioridad
-
-**[FOTOS] Enriquecer soccer players pendientes**
-- Ligas sin fotos completas: Serie A (~6%), Liga MX (~7%)
-- Fix: correr `node scripts/generate-soccer-photos.js 25999792cebaba43e105fc133cc96fcc`
-- Requiere >100 requests → esperar al siguiente día (límite API-Football = 100/día)
-- Después: `npm run build` → `git push` → `wrangler pages deploy`
-
-**[AUTH] Google OAuth no está configurado**
-- `login.ts` tiene `client_id: 'TU_CLIENT_ID_DE_GOOGLE...'` hardcodeado
-- Necesita Google Cloud Console → OAuth 2.0 Client ID
-- El endpoint `/api/auth/google` en el backend SÍ está implementado
-
-**[MATCHES] Ratings en matches.ts todavía son client-only**
-- `matches.ts` usa `fakeTotalVotes = 10` en su cálculo local
-- Solo `match-detail.ts` fue corregido para usar el backend
-- Fix: replicar la lógica de `RatingService` en `matches.ts`
-
-### 🟡 Media prioridad
-
-**[LISTAS] Agregar partidos a listas desde match-detail**
-- El backend tiene `POST /api/lists/:id/items` operativo
-- Falta el botón "Agregar a lista" en la UI de match-detail
-- `ListsService.addMatch()` ya existe en el frontend, solo falta conectarlo
-
-**[HOME] Feed de actividad reciente es mock**
-- `home.ts`: `recentActivity` y `popularLists` son arrays hardcodeados
-- Necesita endpoint `GET /api/activity` en el backend
-- Sugerencia: consultar opiniones recientes de todos los usuarios
-
-**[MATCHES] Rating previo del usuario no se carga**
-- Al entrar a la página de partidos, el usuario no ve su rating anterior
-- Fix: al cargar cada partido, consultar `GET /api/ratings/:matchId/user/:userId`
+*Todas las tareas de alta y media prioridad del antiguo Handover se han completado.*
 
 ### 🟢 Baja prioridad / Features nuevas
 
@@ -302,7 +233,7 @@ Wrangler CLI:    autenticado localmente (token en ~/.wrangler)
 - **Perfiles públicos**: no hay endpoint `GET /api/users/:id` para ver perfiles ajenos
 - **Sistema de seguidores**: no hay tabla `user_follows` ni UI
 - **Notificaciones**: sin sistema de notificaciones para replies
-- **Deploy automático**: conectar Render al repo para auto-deploy en push
+- **Deploy automático (Pages)**: crear el proyecto nuevo en Cloudflare Dashboard enlazado a Github para no usar Wrangler.
 - **CORS más estricto**: el regex `.*\.pages\.dev` es demasiado permisivo
 
 ---
@@ -315,28 +246,6 @@ Wrangler CLI:    autenticado localmente (token en ~/.wrangler)
 - **Sin comentarios en código** a menos que la lógica sea muy no-obvia
 - **Sin logs de debug en producción** — limpiar `console.log` antes de push
 - **Commits en español**, mensajes cortos y descriptivos, sin co-authored-by
-- Cuando hay múltiples cambios relacionados: **un solo commit**
-
-### Reglas de código establecidas
-```
-Angular:
-  - Standalone components siempre
-  - ChangeDetectorRef.detectChanges() para forzar re-render en callbacks async
-  - Usar environment.apiUrl para todas las URLs al backend
-  - environment.ts path desde services:    '../../environments/environment'
-  - environment.ts path desde components:  '../../../environments/environment'
-
-Backend:
-  - requireAuth middleware en rutas protegidas
-  - Rutas públicas de lectura NO requieren auth (GET opinions, GET ratings)
-  - Usar parámetros preparados en todas las queries SQL (ya implementado)
-  - ESPN proxy y TheSportsDB proxy viven en server.js
-
-Base de datos:
-  - DB name: recorder (minúsculas)
-  - TiDB Cloud: ejecutar migraciones desde el SQL Editor del dashboard
-  - Crear tablas de una en una si hay foreign keys entre ellas
-```
 
 ### Comandos frecuentes
 ```bash
@@ -349,47 +258,6 @@ cd frontend && npm run build
 npx wrangler pages deploy dist/frontend/browser \
   --project-name=recordr --branch=main --commit-dirty=true
 
-# Regenerar datos de jugadores (correr desde /RecordR)
+# Regenerar datos de jugadores (Ojo: Hacer backup del json para no perder fotos)
 node scripts/generate-players.js
-node scripts/generate-soccer-photos.js 25999792cebaba43e105fc133cc96fcc
-# ⚠️  API-Football: 100 req/día → 2-3 días para todas las ligas
-
-# Git
-git add -A && git commit -m "descripción" && git push
 ```
-
-### Estructura de archivos clave
-```
-RecordR/
-├── backend/
-│   ├── server.js              ← TODO el backend (rutas, middleware, proxies)
-│   ├── config/db.js           ← Conexión MySQL con SSL
-│   └── sql/
-│       ├── schema.sql         ← Tablas originales
-│       └── migrations.sql     ← Tablas nuevas (ratings, user_lists, list_items)
-├── frontend/src/app/
-│   ├── services/
-│   │   ├── espn.service.ts         ← Partidos en vivo (ESPN scoreboard)
-│   │   ├── espn-players.service.ts ← Jugadores (static JSON + ESPN search)
-│   │   ├── auth.service.ts         ← JWT, currentUser$
-│   │   ├── opinion.service.ts      ← Opiniones/comentarios
-│   │   ├── rating.service.ts       ← Ratings de partidos
-│   │   └── lists.service.ts        ← Listas de usuario
-│   ├── guards/
-│   │   └── auth.guard.ts           ← Protección de rutas
-│   ├── interceptors/
-│   │   └── auth.interceptor.ts     ← JWT automático en cada request
-│   └── environments/
-│       ├── environment.ts          ← dev (localhost:3000)
-│       └── environment.prod.ts     ← prod (recordr-api.onrender.com)
-├── frontend/public/
-│   ├── data/players.json      ← 7,865 jugadores pre-generados (3.7MB)
-│   └── _redirects             ← SPA routing Cloudflare Pages
-└── scripts/
-    ├── generate-players.js         ← Genera players.json desde ESPN (~15min)
-    └── generate-soccer-photos.js   ← Enriquece fotos vía API-Football + Wikipedia
-```
-
----
-
-*Documento generado el 2026-04-30. Próxima tarea inmediata: completar fotos de Serie A y Liga MX cuando el límite de API-Football se resetee (correr `node scripts/generate-soccer-photos.js 25999792cebaba43e105fc133cc96fcc`).*
