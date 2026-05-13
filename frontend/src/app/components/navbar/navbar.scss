@@ -73,8 +73,9 @@ $primary: #00ff66;
     border-top-right-radius: 0;
     border-bottom-left-radius: 30px;
     border-bottom-right-radius: 30px;
-    height: 32px;
+    height: 40px;
     display: flex;
+    align-items: center;
     overflow: hidden;
     position: relative;
     box-shadow: 
@@ -88,13 +89,13 @@ $primary: #00ff66;
     top: 0;
     bottom: 0;
     z-index: 2;
-    padding: 0 14px;
+    padding: 0 16px;
     display: flex;
     align-items: center;
     background: #07090b;
     border-right: 1px solid rgba(255, 255, 255, 0.08);
     border-bottom-left-radius: 30px;
-    font-size: 10px;
+    font-size: 11px;
     letter-spacing: 0.15em;
     color: #a3c4a8;
 }
@@ -103,7 +104,10 @@ $primary: #00ff66;
     flex: 1;
     overflow: hidden;
     position: relative;
-    padding-left: 90px;
+    padding-left: 96px;
+    height: 100%;
+    display: flex;
+    align-items: center;
 }
 
 .ticker {
@@ -111,8 +115,9 @@ $primary: #00ff66;
     gap: 48px;
     animation: tickerScroll 60s linear infinite;
     white-space: nowrap;
-    font-size: 11px;
+    font-size: 12px;
     align-items: center;
+    height: 100%;
 
     span {
         display: inline-flex;
