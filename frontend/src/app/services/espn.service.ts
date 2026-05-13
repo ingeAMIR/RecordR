@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, forkJoin, map, catchError, of, switchMap, startWith } from 'rxjs';
+import { Observable, forkJoin, map, catchError, of, switchMap, startWith, shareReplay } from 'rxjs';
 
 export interface MatchInfo {
   id: string;
@@ -57,7 +57,15 @@ export class EspnService {
 
   constructor(private http: HttpClient) {}
 
-  getAllMatches(): Observable<MatchInfo[]> {
+  private matchesCache$: Observable<MatchInfo[]> | null = null;
+  private cacheTimestamp = 0;
+  private readonly CACHE_DURATION = 5 * 60 * 1000; // 5 minutos
+
+  getAllMatches(forceRefresh = false): Observable<MatchInfo[]> {
+    if (!forceRefresh && this.matchesCache$ && (Date.now() - this.cacheTimestamp < this.CACHE_DURATION)) {
+      return this.matchesCache$;
+    }
+
     const initialRequests = this.endpoints.map(ep =>
       this.http.get<any>(ep.url).pipe(
         map(data => ({
@@ -73,7 +81,7 @@ export class EspnService {
       )
     );
 
-    return forkJoin(initialRequests).pipe(
+    this.matchesCache$ = forkJoin(initialRequests).pipe(
       switchMap((results): Observable<MatchInfo[]> => {
         const todayMatches = results.flatMap(r => r.todayMatches);
 
@@ -106,8 +114,12 @@ export class EspnService {
         );
 
         return fetchUpcoming.pipe(startWith(todayMatches));
-      })
+      }),
+      shareReplay(1)
     );
+
+    this.cacheTimestamp = Date.now();
+    return this.matchesCache$;
   }
 
   getMatchById(id: string): Observable<MatchInfo | undefined> {
