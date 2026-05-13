@@ -38,8 +38,13 @@ export class Navbar {
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent) {
     const target = event.target as HTMLElement;
-    if (!target.closest('.navbar-island')) {
+    if (!target.closest('.main-header')) {
       this.menuOpen = false;
     }
+  }
+
+  getInitials(name: string): string {
+    if (!name) return '';
+    return name.split(' ').map(s => s[0]).join('').slice(0, 2).toUpperCase();
   }
 }

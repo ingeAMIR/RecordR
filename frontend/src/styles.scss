@@ -278,3 +278,47 @@ body.custom-cursor-enabled::after {
     .mt-5.d-flex.gap-4 > div { flex: 1 1 30%; min-width: 100px; text-align: center !important; }
     .vr { display: none; }
 }
+
+/* ==========================================================
+   V2 REDESIGN UTILITIES (Ticker, Editorial, Badges)
+   ========================================================== */
+.tnum { font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
+.mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+
+.dot { width: 6px; height: 6px; border-radius: 999px; display: inline-block; }
+.dot.live { background: #ff3b3b; box-shadow: 0 0 0 4px rgba(255,59,59,0.18); }
+.dot.green { background: var(--xports-primary); box-shadow: 0 0 8px var(--xports-primary-glow); }
+
+.eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--xports-text-muted); }
+.eyebrow .accent { color: var(--xports-primary); }
+
+.score { font-family: 'Outfit', sans-serif; font-weight: 900; font-variant-numeric: tabular-nums; letter-spacing: -0.04em; }
+
+.row-hover:hover { background: rgba(255,255,255,0.025); }
+
+.ph-img {
+  background: repeating-linear-gradient(45deg, rgba(255,255,255,0.03) 0 8px, transparent 8px 16px), rgba(22,26,32,0.6);
+  border: 1px solid var(--xports-border);
+  display: flex; align-items: center; justify-content: center; color: #4a5852;
+  font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+}
+
+@keyframes tickerScroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+.ticker { display: flex; gap: 48px; animation: tickerScroll 60s linear infinite; white-space: nowrap; }
+
+@keyframes pulseDot { 0%,100% { opacity: 1; } 50% { opacity: .4; } }
+.pulse { animation: pulseDot 1.5s ease-in-out infinite; }
+
+.bar { height: 4px; background: rgba(255,255,255,0.06); border-radius: 2px; overflow: hidden; }
+.bar > i { display: block; height: 100%; background: linear-gradient(90deg, #00ff66, #00a846); border-radius: 2px; }
+
+.card-hover { transition: all .25s; }
+.card-hover:hover { border-color: rgba(0,255,102,0.3); transform: translateY(-3px); box-shadow: 0 12px 28px rgba(0,0,0,0.5), 0 0 24px rgba(0,255,102,0.1); }
+
+.chip {
+  display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 999px;
+  font-size: 11px; font-weight: 700; color: var(--xports-text-secondary); background: rgba(0,0,0,0.4);
+  border: 1px solid var(--xports-border); text-transform: uppercase; letter-spacing: 0.05em;
+}
+.chip.active { background: linear-gradient(135deg,#00ff66,#00a846); color: #000; border-color: transparent; box-shadow: 0 0 12px rgba(0,255,102,0.3); }
+.chip.green { color: var(--xports-primary); border-color: rgba(0,255,102,0.35); background: rgba(0,255,102,0.08); }

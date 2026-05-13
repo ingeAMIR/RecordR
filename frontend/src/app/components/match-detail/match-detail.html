@@ -1,5 +1,4 @@
 <div class="container py-5 match-detail-screen">
-  <!-- Top Nav -->
   <div class="mb-4">
     <a routerLink="/matches" class="btn btn-outline-secondary rounded-pill btn-sm d-inline-flex align-items-center text-white border-secondary">
       <i class="bi bi-arrow-left me-2"></i> Volver a Partidos
@@ -16,183 +15,203 @@
     <p class="text-white fw-bold">No se encontró el partido o ya no está disponible.</p>
   </div>
 
-  <div *ngIf="match" class="row gx-lg-5">
-    <!-- Match Info Left Column -->
-    <div class="col-lg-5 mb-5 mb-lg-0">
-      <div class="match-detail-card card glass-card border-0 rounded-4 overflow-hidden position-relative">
-        <!-- Colored Header -->
-        <div class="match-banner p-4 text-center d-flex align-items-center justify-content-center flex-column position-relative z-1" [style.background]="'linear-gradient(135deg, ' + match.homeColor + ' 0%, #1a1a1a 50%, ' + match.awayColor + ' 100%)'">
-          <div class="league-badge mb-4 bg-dark bg-opacity-75 px-3 py-1 rounded-pill d-inline-flex align-items-center gap-2 shadow-sm border border-secondary border-opacity-50">
-            <img *ngIf="match.leagueLogo" [src]="match.leagueLogo" alt="" class="league-logo-sm">
-            <span class="text-white small fw-bold">{{ match.league }}</span>
+  <div *ngIf="match" class="screen">
+    <!-- Hero with gradient -->
+    <section style="position:relative; padding:40px 32px 32px; overflow:hidden; border-bottom:1px solid var(--xports-border);">
+      <div style="position:absolute; top:-150px; left:5%; width:500px; height:500px; border-radius:50%; background:radial-gradient(circle,rgba(0,255,102,0.10),transparent 60%); filter:blur(60px); pointer-events:none;"></div>
+
+      <div style="max-width:1200px; margin:0 auto; position:relative;">
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:24px; font-size:12px; color:var(--xports-text-muted);">
+          <a routerLink="/matches" style="color:var(--xports-text-muted); cursor: pointer;">Partidos</a>
+          <span>›</span>
+          <a style="color:var(--xports-text-muted);">{{ match.league }}</a>
+          <span>›</span>
+          <span style="color:var(--xports-text);">{{ match.homeTeam }} vs {{ match.awayTeam }}</span>
+        </div>
+
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:20px;">
+          <span class="chip">{{ match.league }}</span>
+          <span class="chip green" *ngIf="match.status === 'in'"><span class="dot live pulse"></span> EN VIVO</span>
+          <span class="chip" *ngIf="match.status === 'pre'">PRÓXIMO</span>
+          <span class="chip" *ngIf="match.completed">FINALIZADO</span>
+          <span class="mono" style="font-size:10px; color:var(--xports-text-muted);">ESTADIO: {{ match.venue || 'POR DEFINIR' }} · {{ match.date | date:'dd MMM, HH:mm' | uppercase }}</span>
+        </div>
+
+        <!-- Scoreboard -->
+        <div style="display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:32px; padding:32px 0;">
+          <div style="text-align:right; display:flex; flex-direction: row-reverse; align-items:center; gap: 24px;">
+            <img [src]="match.homeLogo" class="rounded-3 shadow mb-3" style="width:88px; height:88px; object-fit:contain; border:1px solid rgba(255,255,255,0.1); padding: 10px; background: linear-gradient(135deg, var(--xports-card-bg) 0%, rgba(0,0,0,0.8) 100%);">
+            <div>
+                <div class="mono" style="font-size:10px; color:var(--xports-text-muted); letter-spacing:0.12em;">LOCAL</div>
+                <div class="font-display" style="font-size:36px; font-weight:600; letter-spacing:-0.03em;">{{ match.homeTeam }}</div>
+            </div>
           </div>
-
-          <div class="d-flex align-items-center justify-content-between w-100 gap-3 mt-2">
-            <div class="team-col text-center flex-1">
-              <img [src]="match.homeLogo" class="team-logo-lg mb-3 shadow spin-on-hover">
-              <h5 class="text-white fw-bold mb-0 text-shadow px-2">{{ match.homeTeam }}</h5>
-            </div>
-            
-            <div class="score-col flex-shrink-0 text-center text-white d-flex flex-column align-items-center">
-              <div class="fs-1 fw-black text-shadow tracking-tight" *ngIf="match.completed || match.status === 'in'">
-                {{ match.homeScore }} - {{ match.awayScore }}
+          <div style="text-align:center;">
+            <div *ngIf="match.completed || match.status === 'in'" style="display:flex; align-items:center; gap:18px;">
+              <span class="score" style="font-size:72px; line-height:1; color: {{ match.homeScore > match.awayScore ? 'var(--xports-primary)' : '#fff' }}">{{ match.homeScore }}</span>
+              <div style="display:flex; flex-direction:column; align-items:center; gap:6px; min-width: 60px;">
+                <span *ngIf="match.status === 'in'" class="dot live pulse"></span>
+                <span class="mono" style="font-size:11px; color:var(--xports-text-muted); letter-spacing:0.15em; font-weight:700;">{{ match.statusDetail }}</span>
               </div>
-              <div class="fs-2 fw-black text-shadow tracking-tight" *ngIf="!match.completed && match.status !== 'in'">
-                VS
-              </div>
-              
-              <span class="badge bg-danger rounded-pill mt-2 px-3 py-2 shadow-sm pulse-badge" *ngIf="match.status === 'in'">
-                <i class="bi bi-record-circle me-1"></i> EN VIVO
-              </span>
-              <span class="badge bg-secondary rounded-pill mt-2 px-3 py-2 shadow-sm" *ngIf="match.completed">FINALIZADO</span>
-              <span class="badge bg-primary rounded-pill mt-2 px-3 py-2 shadow-sm" *ngIf="match.status === 'pre'">PRÓXIMO</span>
+              <span class="score" style="font-size:72px; line-height:1; color: {{ match.awayScore > match.homeScore ? 'var(--xports-primary)' : '#fff' }}">{{ match.awayScore }}</span>
             </div>
-
-            <div class="team-col text-center flex-1">
-              <img [src]="match.awayLogo" class="team-logo-lg mb-3 shadow spin-on-hover">
-              <h5 class="text-white fw-bold mb-0 text-shadow px-2">{{ match.awayTeam }}</h5>
+            <div *ngIf="!match.completed && match.status !== 'in'" class="score" style="font-size:60px; color: var(--xports-text-muted);">VS</div>
+          </div>
+          <div style="text-align:left; display:flex; align-items:center; gap: 24px;">
+            <img [src]="match.awayLogo" class="rounded-3 shadow mb-3" style="width:88px; height:88px; object-fit:contain; border:1px solid rgba(255,255,255,0.1); padding: 10px; background: linear-gradient(135deg, var(--xports-card-bg) 0%, rgba(0,0,0,0.8) 100%);">
+            <div>
+                <div class="mono" style="font-size:10px; color:var(--xports-text-muted); letter-spacing:0.12em;">VISITANTE</div>
+                <div class="font-display" style="font-size:36px; font-weight:600; letter-spacing:-0.03em;">{{ match.awayTeam }}</div>
             </div>
           </div>
         </div>
 
-        <div class="card-body p-4 bg-dark text-white border-top border-secondary border-opacity-25">
-          <div class="d-flex justify-content-between align-items-center mb-4 text-secondary pb-3 border-bottom border-secondary border-opacity-50">
-            <div class="d-flex align-items-center gap-2">
-               <i class="bi bi-calendar-event opacity-75"></i>
-               <span class="fw-medium">{{ match.date | date:'dd MMM, HH:mm' }}</span>
-            </div>
-            <div class="d-flex align-items-center gap-2">
-               <i class="bi bi-geo-alt opacity-75"></i>
-               <span class="fw-medium text-truncate" style="max-width: 150px;">{{ match.venue || 'Por definir' }}</span>
-            </div>
-          </div>
-          
-          <div class="d-flex align-items-center justify-content-between bg-black bg-opacity-50 rounded-4 p-3 border border-secondary border-opacity-25 shadow-sm min-h-60">
-             
-             <!-- Static State -->
-             <ng-container *ngIf="!showRatingInput">
-               <div class="d-flex align-items-center gap-2">
-                  <div class="rating-stars text-warning fs-5">{{ getStars(match.rating) }}</div>
-                  <div class="fw-bold fs-5 text-white">{{ match.rating }}</div>
-               </div>
-               <button *ngIf="!userRated" class="btn btn-outline-primary btn-sm rounded-pill fw-bold hover-lift" (click)="showRatingInput = true">Calificar</button>
-               <span *ngIf="userRated" class="badge bg-success bg-opacity-25 text-success rounded-pill px-3 py-2 border border-success border-opacity-50 d-flex align-items-center gap-1 shadow-sm">
-                 <i class="bi bi-check2-circle fs-6"></i> Calificado ({{userRatingModel}})
-               </span>
-             </ng-container>
-
-             <!-- Interactive Rating Input State -->
-             <div class="w-100 d-flex justify-content-between align-items-center slide-in px-2" *ngIf="showRatingInput">
-                <span class="text-white fw-bold small me-3">Tu Voto:</span>
-                <div class="d-flex align-items-center gap-2 text-warning fs-3 rating-selector" (mouseleave)="hoverRating = 0">
-                    <i class="bi cursor-pointer transition-transform" *ngFor="let star of [1,2,3,4,5]" 
-                       [ngClass]="(hoverRating >= star) ? 'bi-star-fill' : 'bi-star'"
-                       (mouseenter)="hoverRating = star"
-                       (click)="rateMatch(star)"></i>
-                </div>
-                <button class="btn btn-sm btn-link text-secondary hover-white text-decoration-none ms-auto p-0" (click)="showRatingInput = false"><i class="bi bi-x-lg fs-5"></i></button>
-             </div>
+        <!-- Action bar -->
+        <div style="display:flex; gap:12px; margin-top:24px; align-items:center;">
+          <button class="btn btn-primary shadow-glow" (click)="showRatingInput = true" *ngIf="!userRated"><i class="bi bi-star"></i> Calificar partido</button>
+          <button class="btn btn-outline-light" *ngIf="userRated" (click)="showRatingInput = true"><i class="bi bi-check2-circle text-primary"></i> Cambiar voto ({{userRatingModel}})</button>
+          <button class="btn btn-outline-light" (click)="openListsModal()"><i class="bi bi-bookmark-plus"></i> Añadir a lista</button>
+          <div style="margin-left:auto; display:flex; align-items:center; gap:16px; color:var(--xports-text-secondary); font-size:13px;">
+            <span style="display:inline-flex; align-items:center; gap:6px;">
+              <span class="tnum font-display text-white" style="font-size:18px; font-weight:600;">{{ match.rating }}</span>
+              <span class="text-primary"><i class="bi bi-star-fill"></i></span>
+            </span>
           </div>
         </div>
+
+        <!-- Interactive Rating Input State -->
+        <div class="mt-3 p-3 bg-dark border border-secondary border-opacity-25 rounded-3 d-flex align-items-center gap-3 slide-in" *ngIf="showRatingInput">
+            <span class="text-white fw-bold small">Tu Voto:</span>
+            <div class="d-flex align-items-center gap-2 text-warning fs-3 rating-selector" (mouseleave)="hoverRating = 0">
+                <i class="bi cursor-pointer transition-transform" *ngFor="let star of [1,2,3,4,5]" 
+                   [ngClass]="(hoverRating >= star) ? 'bi-star-fill' : 'bi-star'"
+                   (mouseenter)="hoverRating = star"
+                   (click)="rateMatch(star)"></i>
+            </div>
+            <button class="btn btn-sm btn-link text-secondary hover-white text-decoration-none ms-auto p-0" (click)="showRatingInput = false"><i class="bi bi-x-lg fs-5"></i></button>
+         </div>
+
       </div>
-    </div>
+    </section>
 
-    <!-- Conversation Right Column -->
-    <div class="col-lg-7 d-flex flex-column h-100" style="min-height: 600px;">
-      <div class="conversation-container d-flex flex-column h-100 bg-dark rounded-4 p-4 shadow-lg border border-secondary border-opacity-25 relative-overflow">
-        <h3 class="fw-bold mb-4 text-white d-flex align-items-center pb-3 border-bottom border-secondary border-opacity-50">
-          <i class="bi bi-chat-square-text-fill me-3 text-primary fs-4"></i> 
-          Conversación
-        </h3>
+    <!-- Content — Conversation + Rating breakdown -->
+    <section style="max-width:1200px; margin:0 auto; padding:40px 32px;">
+      <div class="row gx-5">
+        <!-- Left — Conversation -->
+        <div class="col-lg-8">
+          <div class="eyebrow mb-3">CONVERSACIÓN · {{ opinions.length }} OPINIONES</div>
 
-        <!-- Comments List -->
-        <div class="comments-list flex-grow-1 overflow-auto pe-3 mb-4 d-flex flex-column gap-3">
-          
+          <!-- Compose -->
+          <div style="border:1px solid var(--xports-border); border-radius:8px; padding:16px; background:rgba(0,0,0,0.3); margin-bottom:24px;">
+            <div style="display:flex; align-items:center; gap:12px; margin-bottom:14px;">
+              <img [src]="avatarUrl" class="rounded-circle border border-secondary border-opacity-50" style="width:32px; height:32px; object-fit: cover;">
+              <span style="font-size:13px; color:var(--xports-text-secondary);">Escribiendo como <strong>{{ userName }}</strong></span>
+            </div>
+            <textarea
+              [(ngModel)]="newOpinion"
+              class="field" style="min-height:64px; resize:vertical; background: rgba(255,255,255,0.02);"
+              placeholder="Escribe tu opinión sobre este partido..."></textarea>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px;">
+              <span class="mono" style="font-size:10px; color:var(--xports-text-muted);">SE RESPETUOSO CON LA COMUNIDAD</span>
+              <button class="btn btn-primary" [disabled]="!newOpinion.trim()" (click)="addOpinion()">
+                Publicar <i class="bi bi-send ms-1"></i>
+              </button>
+            </div>
+          </div>
+
           <div *ngIf="loadingOpinions" class="text-center py-5 my-auto">
             <div class="spinner-border text-primary" role="status"></div>
             <p class="mt-2 text-muted fw-bold">Cargando conversación...</p>
           </div>
 
-          <ng-container *ngIf="!loadingOpinions">
-             <div class="comment-card bg-black bg-opacity-50 rounded-4 p-3 d-flex gap-3 position-relative slide-in" *ngFor="let opinion of opinions; let i = index" [style.animation-delay]="i * 100 + 'ms'">
-               <img [src]="opinion.avatar" class="rounded-circle avatar-sm shadow border border-secondary border-opacity-50">
-               <div class="w-100">
-                 <div class="d-flex justify-content-between align-items-center mb-2">
-                   <h6 class="mb-0 text-white fw-bold">{{ opinion.user }}</h6>
-                   <span class="text-secondary small fw-medium">{{ (opinion.time | date:'shortTime') || opinion.time }}</span>
-                 </div>
-                 <p class="text-light mb-3 text-break fs-6 lh-base">{{ opinion.text }}</p>
-                 <div class="d-flex align-items-center gap-4">
-                   <button class="btn btn-link text-decoration-none p-0 btn-like d-flex align-items-center gap-2 fw-medium transition-colors" [ngClass]="opinion.likedByMe ? 'text-danger' : 'text-secondary hover-primary'" (click)="likeOpinion(opinion)">
-                     <i class="bi" [ngClass]="opinion.likedByMe ? 'bi-heart-fill' : 'bi-heart-fill'"></i>
-                     <span>{{ opinion.likes }}</span>
-                   </button>
-                   <button class="btn btn-link text-decoration-none text-secondary p-0 d-flex align-items-center gap-2 fw-medium hover-primary" (click)="toggleReplyInput(opinion)">
-                     <i class="bi bi-reply-fill"></i> Responder
-                   </button>
-                 </div>
-                 
-                 <!-- Reply Input Box -->
-                 <div class="mt-3 slide-in" *ngIf="opinion.showReplyInput">
-                   <div class="d-flex align-items-center gap-2 bg-dark bg-opacity-75 rounded-pill p-1 border border-secondary border-opacity-50">
-                     <input type="text" class="form-control bg-transparent border-0 text-white shadow-none ms-2 fs-6" placeholder="Escribe tu respuesta..." [(ngModel)]="opinion.newReplyText" (keyup.enter)="submitReply(opinion)">
-                     <button class="btn btn-sm btn-primary rounded-pill px-3 fw-bold" (click)="submitReply(opinion)" [disabled]="!opinion.newReplyText?.trim()">Enviar</button>
+          <!-- Opinion list -->
+          <div style="display:flex; flex-direction:column; gap:24px;" *ngIf="!loadingOpinions">
+            <div *ngFor="let opinion of opinions; let i = index" style="display:grid; grid-template-columns:40px 1fr; gap:14px;">
+              <img [src]="opinion.avatar" class="rounded-circle border border-secondary border-opacity-50" style="width:40px; height:40px; object-fit: cover;">
+              <div>
+                <div style="display:flex; align-items:center; gap:12px; margin-bottom:6px;">
+                  <span style="font-size:13px; font-weight:600; color: #fff;">{{ opinion.user }}</span>
+                  <span class="mono" style="font-size:10px; color:var(--xports-text-muted);">{{ (opinion.time | date:'shortTime') || opinion.time }}</span>
+                </div>
+                <p style="font-size:14px; color:var(--xports-text); line-height:1.55; margin:0 0 12px;">{{ opinion.text }}</p>
+                <div style="display:flex; gap:16px; color:var(--xports-text-muted); font-size:12px;">
+                  <button class="btn btn-link text-decoration-none p-0 d-flex align-items-center gap-2 fw-medium transition-colors" [ngClass]="opinion.likedByMe ? 'text-danger' : 'text-secondary hover-primary'" (click)="likeOpinion(opinion)">
+                    <i class="bi" [ngClass]="opinion.likedByMe ? 'bi-heart-fill' : 'bi-heart-fill'"></i>
+                    <span>{{ opinion.likes }}</span>
+                  </button>
+                  <button class="btn btn-link text-decoration-none text-secondary p-0 d-flex align-items-center gap-2 fw-medium hover-primary" (click)="toggleReplyInput(opinion)">
+                    <i class="bi bi-reply-fill"></i> Responder
+                  </button>
+                </div>
+                
+                <!-- Reply Input Box -->
+                <div class="mt-3 slide-in" *ngIf="opinion.showReplyInput">
+                  <div class="d-flex align-items-center gap-2 bg-dark bg-opacity-75 rounded-pill p-1 border border-secondary border-opacity-50">
+                    <input type="text" class="form-control bg-transparent border-0 text-white shadow-none ms-2 fs-6" placeholder="Escribe tu respuesta..." [(ngModel)]="opinion.newReplyText" (keyup.enter)="submitReply(opinion)">
+                    <button class="btn btn-sm btn-primary rounded-pill px-3 fw-bold" (click)="submitReply(opinion)" [disabled]="!opinion.newReplyText?.trim()">Enviar</button>
+                  </div>
+                </div>
+
+                <!-- Nested Replies -->
+                <div class="mt-3 ps-3 border-start border-secondary border-opacity-50 d-flex flex-column gap-3" *ngIf="opinion.replies && opinion.replies.length > 0">
+                   <div class="d-flex gap-2 position-relative slide-in" *ngFor="let reply of opinion.replies">
+                     <img [src]="reply.avatar" class="rounded-circle shadow border border-secondary border-opacity-50 mt-1" style="width: 28px; height: 28px; object-fit: cover;">
+                     <div class="w-100 bg-dark bg-opacity-25 p-2 rounded-3 border border-secondary border-opacity-25">
+                       <div class="d-flex gap-2 align-items-center mb-1">
+                         <h6 class="mb-0 text-white fw-bold" style="font-size: 0.85rem;">{{ reply.user }}</h6>
+                         <span class="mono" style="font-size: 0.75rem; color: var(--xports-text-muted);">{{ (reply.time | date:'shortTime') || reply.time }}</span>
+                       </div>
+                       <p class="text-light mb-2 text-break lh-base" style="font-size: 0.85rem;">{{ reply.text }}</p>
+                       <div class="d-flex align-items-center gap-3">
+                         <button class="btn btn-link text-decoration-none p-0 d-flex align-items-center gap-1 transition-colors" [ngClass]="reply.likedByMe ? 'text-danger' : 'text-secondary hover-primary'" (click)="likeOpinion(reply)" style="font-size: 0.8rem;">
+                           <i class="bi" [ngClass]="reply.likedByMe ? 'bi-heart-fill' : 'bi-heart-fill'"></i>
+                           <span>{{ reply.likes }}</span>
+                         </button>
+                       </div>
+                     </div>
                    </div>
-                 </div>
+                </div>
 
-                 <!-- Nested Replies -->
-                 <div class="mt-3 ms-3 ms-md-4 ps-3 border-start border-secondary border-opacity-50 d-flex flex-column gap-3" *ngIf="opinion.replies && opinion.replies.length > 0">
-                    <div class="d-flex gap-2 position-relative slide-in" *ngFor="let reply of opinion.replies">
-                      <img [src]="reply.avatar" class="rounded-circle shadow border border-secondary border-opacity-50 mt-1" style="width: 32px; height: 32px; object-fit: cover;">
-                      <div class="w-100 bg-dark bg-opacity-25 p-2 rounded-3 border border-secondary border-opacity-25">
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                          <h6 class="mb-0 text-white fw-bold" style="font-size: 0.85rem;">{{ reply.user }}</h6>
-                          <span class="text-secondary small fw-medium" style="font-size: 0.75rem;">{{ (reply.time | date:'shortTime') || reply.time }}</span>
-                        </div>
-                        <p class="text-light mb-2 text-break lh-base" style="font-size: 0.85rem;">{{ reply.text }}</p>
-                        <div class="d-flex align-items-center gap-3">
-                          <button class="btn btn-link text-decoration-none p-0 btn-like d-flex align-items-center gap-1 transition-colors" [ngClass]="reply.likedByMe ? 'text-danger' : 'text-secondary hover-primary'" (click)="likeOpinion(reply)" style="font-size: 0.8rem;">
-                            <i class="bi" [ngClass]="reply.likedByMe ? 'bi-heart-fill' : 'bi-heart-fill'"></i>
-                            <span>{{ reply.likes }}</span>
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                 </div>
-
-               </div>
-             </div>
-             
-             <div *ngIf="opinions.length === 0" class="text-center py-5 text-muted border border-secondary border-opacity-25 border-dashed rounded-4 my-auto mx-3">
-               <i class="bi bi-chat-dots display-3 mb-3 d-block opacity-50"></i>
-               <span class="fw-medium">Sé el primero en opinar sobre este partido.</span>
-             </div>
-          </ng-container>
-        </div>
-
-        <!-- Add Comment Input -->
-        <div class="comment-input-area mt-auto pt-3 border-top border-secondary border-opacity-50">
-          <div class="p-2 bg-black bg-opacity-50 rounded-pill shadow-sm border border-secondary border-opacity-50 d-flex align-items-center gap-2 focus-ring-container transition-all">
-            <div class="ps-3 pe-2 text-primary opacity-75 d-none d-sm-block">
-                <i class="bi bi-pencil-fill"></i>
+              </div>
             </div>
-            <input type="text" class="form-control bg-transparent border-0 text-white shadow-none placeholder-gray flex-grow-1 header-input" placeholder="Añade tu opinión sobre este partidazo..." [(ngModel)]="newOpinion" (keyup.enter)="addOpinion()">
-            <button class="btn btn-primary rounded-circle d-flex align-items-center justify-content-center btn-send flex-shrink-0 shadow-sm" [disabled]="!newOpinion.trim()" (click)="addOpinion()">
-              <i class="bi bi-send-fill ms-1"></i>
-            </button>
+
+            <div *ngIf="opinions.length === 0" class="text-center py-5 text-muted border border-secondary border-opacity-25 border-dashed rounded-4 my-auto mx-3">
+              <i class="bi bi-chat-dots display-3 mb-3 d-block opacity-50"></i>
+              <span class="fw-medium">Sé el primero en opinar sobre este partido.</span>
+            </div>
           </div>
         </div>
+
+        <!-- Right — Rating breakdown sticky -->
+        <aside class="col-lg-4 mt-5 mt-lg-0">
+          <div style="position:sticky; top:100px;">
+            <div class="eyebrow mb-3">RATING DE LA COMUNIDAD</div>
+
+            <div class="glass-panel" style="padding:24px; border-radius:16px;">
+              <div style="display:flex; align-items:baseline; gap:12px; margin-bottom:8px;">
+                <span class="font-display tnum text-primary" style="font-size:56px; font-weight:600; letter-spacing:-0.04em;">{{ match.rating }}</span>
+                <span class="font-display" style="font-size:18px; color:var(--xports-text-muted);">/ 5</span>
+              </div>
+              <div class="rating-stars text-warning fs-5">{{ getStars(match.rating) }}</div>
+              <div class="mono mt-2" style="font-size:10px; color:var(--xports-text-muted); letter-spacing:0.08em;">
+                RATING GLOBAL BASADO EN ESPN
+              </div>
+            </div>
+
+            <button class="btn btn-outline-light w-100 mt-3 d-flex justify-content-center" (click)="openListsModal()"><i class="bi bi-bookmark-plus me-2"></i> Añadir a una lista</button>
+          </div>
+        </aside>
       </div>
-    </div>
+    </section>
   </div>
 </div>
 
 <!-- Modal de Listas -->
 <div class="modal fade show d-block" tabindex="-1" *ngIf="showListsModal" style="background: rgba(0,0,0,0.8);">
   <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content bg-dark border-secondary border-opacity-50 rounded-4 shadow-lg">
+    <div class="modal-content bg-dark border-secondary border-opacity-50 rounded-4 shadow-lg glass-panel">
       <div class="modal-header border-secondary border-opacity-25 pb-3">
-        <h5 class="modal-title text-white fw-bold"><i class="bi bi-bookmark-fill text-primary me-2"></i> Añadir a Lista</h5>
+        <h5 class="modal-title text-white font-display fw-bold"><i class="bi bi-bookmark-fill text-primary me-2"></i> Añadir a Lista</h5>
         <button type="button" class="btn-close btn-close-white" (click)="closeListsModal()"></button>
       </div>
       <div class="modal-body py-4">
@@ -204,7 +223,7 @@
           <button type="button" class="list-group-item list-group-item-action bg-black bg-opacity-25 border-secondary border-opacity-25 text-white d-flex align-items-center gap-3 mb-2 rounded-3 hover-bg-primary" *ngFor="let list of userLists" (click)="addToList(list)">
             <i class="bi {{list.icon}} fs-4 text-primary"></i>
             <div class="flex-grow-1 text-start">
-              <div class="fw-bold">{{list.name}}</div>
+              <div class="fw-bold font-outfit">{{list.name}}</div>
               <small class="text-secondary">{{list.match_count}} partidos</small>
             </div>
             <i class="bi bi-plus-circle text-secondary"></i>

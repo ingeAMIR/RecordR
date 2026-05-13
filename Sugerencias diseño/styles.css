@@ -1,0 +1,86 @@
+/* RecordR redesign — editorial dark, paleta original */
+:root{
+  --bg: #07090b;
+  --bg-elev: #0d1013;
+  --bg-elev-2: #12161a;
+  --primary: #00ff66;
+  --primary-dim: #00a846;
+  --primary-glow: rgba(0,255,102,0.35);
+  --text: #ffffff;
+  --text-2: #a3c4a8;
+  --text-3: #6b7d70;
+  --text-4: #4a5852;
+  --line: rgba(255,255,255,0.07);
+  --line-2: rgba(255,255,255,0.12);
+  --warn: #ffb020;
+  --live: #ff3b3b;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+.font-display{font-family:'Space Grotesk',sans-serif;letter-spacing:-0.02em}
+.tnum{font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+
+/* Reusable bits used by the screen components */
+.screen{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;width:100%;min-height:100%;overflow:hidden}
+.divider{height:1px;background:var(--line)}
+.dot{width:6px;height:6px;border-radius:999px;display:inline-block}
+.dot.live{background:var(--live);box-shadow:0 0 0 4px rgba(255,59,59,0.18)}
+.dot.green{background:var(--primary);box-shadow:0 0 8px var(--primary-glow)}
+
+.eyebrow{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--text-3)}
+.eyebrow .accent{color:var(--primary)}
+
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 16px;border-radius:6px;font-weight:600;font-size:13px;border:1px solid var(--line-2);background:transparent;color:var(--text);cursor:pointer;transition:all .15s}
+.btn:hover{border-color:var(--text-2)}
+.btn.primary{background:var(--primary);color:#001a0a;border-color:var(--primary)}
+.btn.primary:hover{background:#3aff85;border-color:#3aff85}
+.btn.ghost{color:var(--text-2)}
+
+.chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:4px;font-size:11px;font-weight:600;color:var(--text-2);background:transparent;border:1px solid var(--line-2);font-family:'JetBrains Mono',monospace;letter-spacing:0.04em}
+.chip.active{background:var(--text);color:#000;border-color:var(--text)}
+.chip.green{color:var(--primary);border-color:rgba(0,255,102,0.35)}
+
+.score{font-family:'Space Grotesk',sans-serif;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-0.04em}
+.score .win{color:var(--primary)}
+.score .lose{color:var(--text-3)}
+
+.team-bar{width:3px;align-self:stretch;border-radius:3px}
+
+.row-hover:hover{background:rgba(255,255,255,0.025)}
+
+input.field, select.field, textarea.field{
+  width:100%;background:var(--bg-elev);border:1px solid var(--line-2);color:var(--text);
+  padding:10px 12px;border-radius:6px;font-family:inherit;font-size:13px;outline:none;
+}
+input.field:focus, select.field:focus, textarea.field:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(0,255,102,0.12)}
+
+.scrollarea{overflow:auto}
+.scrollarea::-webkit-scrollbar{width:6px;height:6px}
+.scrollarea::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:6px}
+
+/* Tiny placeholder image: subtle striped pattern */
+.ph-img{
+  background:
+    repeating-linear-gradient(45deg, rgba(255,255,255,0.03) 0 8px, transparent 8px 16px),
+    var(--bg-elev);
+  border:1px solid var(--line);
+  display:flex;align-items:center;justify-content:center;color:var(--text-4);
+  font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;
+}
+
+/* Ticker */
+@keyframes tickerScroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.ticker{display:flex;gap:48px;animation:tickerScroll 60s linear infinite;white-space:nowrap}
+
+/* Pulse */
+@keyframes pulseDot{0%,100%{opacity:1}50%{opacity:.4}}
+.pulse{animation:pulseDot 1.5s ease-in-out infinite}
+
+/* Star bar (rating histogram) */
+.bar{height:4px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden}
+.bar > i{display:block;height:100%;background:var(--primary);border-radius:2px}
+
+/* Subtle hover on cards */
+.card-hover{transition:border-color .15s, transform .15s}
+.card-hover:hover{border-color:var(--line-2)}

@@ -1,92 +1,103 @@
-<div class="navbar-wrapper">
-    <nav class="navbar navbar-island py-2" id="mainNav" [class.menu-open]="menuOpen">
-        <div class="container-fluid px-4">
+<header class="main-header" [class.menu-open]="menuOpen">
+    <div class="nav-container">
+        <!-- Logo -->
+        <a class="logo-link" routerLink="/" (click)="closeMenu()">
+            <div class="logo-icon">R</div>
+            <span class="logo-text">Record<span class="text-primary">R</span></span>
+        </a>
 
-            <!-- Brand + Hamburger row -->
-            <div class="d-flex align-items-center justify-content-between w-100">
-                <a class="navbar-brand d-flex align-items-center gap-2 brand-glow" routerLink="/" (click)="closeMenu()">
-                    <img src="logo_final.png" alt="RecordR Logo" style="height: 40px; width: auto;">
-                    <span class="font-outfit fw-black tracking-tight text-white ms-1" style="font-size: 1.4rem;">RecordR</span>
-                </a>
+        <!-- Desktop Links -->
+        <nav class="desktop-nav">
+            <a class="nav-item" routerLink="/matches" routerLinkActive="active" [routerLinkActiveOptions]="{exact:false}">Partidos</a>
+            <a class="nav-item" routerLink="/players" routerLinkActive="active" [routerLinkActiveOptions]="{exact:false}">Jugadores</a>
+            <a class="nav-item" routerLink="/lists" routerLinkActive="active" [routerLinkActiveOptions]="{exact:false}">Listas</a>
+        </nav>
 
-                <!-- Botón hamburguesa (solo móvil) -->
-                <button class="hamburger-btn d-lg-none" type="button" (click)="toggleMenu()" [class.active]="menuOpen" aria-label="Menú">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </button>
+        <div class="flex-spacer"></div>
 
-                <!-- Links de escritorio -->
-                <div class="desktop-nav d-none d-lg-flex align-items-center gap-4">
-                    <ul class="navbar-nav flex-row gap-4 mb-0">
-                        <li class="nav-item">
-                            <a class="nav-link text-uppercase fw-bold text-secondary text-xs tracking-wider magnetic-hover"
-                                routerLink="/matches" routerLinkActive="active-link">Partidos</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-uppercase fw-bold text-secondary text-xs tracking-wider magnetic-hover"
-                                routerLink="/players" routerLinkActive="active-link">Jugadores</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-uppercase fw-bold text-secondary text-xs tracking-wider magnetic-hover"
-                                routerLink="/lists" routerLinkActive="active-link">Listas</a>
-                        </li>
-                    </ul>
-
-                    <div class="d-flex align-items-center gap-2">
-                        <ng-container *ngIf="authService.currentUser$ | async as user; else guestDesktop">
-                            <a routerLink="/profile" class="btn btn-primary rounded-pill px-4 fw-bold text-sm border-0 island-glow-btn d-flex align-items-center gap-2">
-                                <img *ngIf="user.avatar; else iconDesktop" [src]="user.avatar" alt="Avatar" class="rounded-circle" style="width: 20px; height: 20px; object-fit: cover;">
-                                <ng-template #iconDesktop><i class="bi bi-person-fill fs-5 m-0 lh-1"></i></ng-template>
-                                <span>Mi Perfil</span>
-                            </a>
-                        </ng-container>
-                        <ng-template #guestDesktop>
-                            <a routerLink="/login" class="btn btn-link text-decoration-none text-white fw-bold text-sm login-btn">Iniciar Sesión</a>
-                            <a routerLink="/register" class="btn btn-primary rounded-pill px-4 fw-bold text-sm border-0 island-glow-btn">Registrarse</a>
-                        </ng-template>
-                    </div>
-                </div>
+        <!-- Desktop Search & Auth -->
+        <div class="actions-section">
+            <div class="search-bar d-none d-lg-flex">
+                <i class="bi bi-search me-2"></i>
+                <span>Buscar partidos, jugadores...</span>
+                <span class="shortcut ms-auto">⌘K</span>
             </div>
 
-            <!-- Menú móvil desplegable -->
-            <div class="mobile-menu d-lg-none" [class.open]="menuOpen">
-                <ul class="navbar-nav gap-1 mt-3">
-                    <li class="nav-item">
-                        <a class="mobile-nav-link" routerLink="/matches" routerLinkActive="mobile-active" (click)="closeMenu()">
-                            <i class="bi bi-calendar3 me-2"></i>Partidos
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="mobile-nav-link" routerLink="/players" routerLinkActive="mobile-active" (click)="closeMenu()">
-                            <i class="bi bi-person-badge me-2"></i>Jugadores
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="mobile-nav-link" routerLink="/lists" routerLinkActive="mobile-active" (click)="closeMenu()">
-                            <i class="bi bi-collection me-2"></i>Listas
-                        </a>
-                    </li>
-                </ul>
-
-                <div class="mobile-auth mt-3 pt-3 border-top border-secondary border-opacity-25">
-                    <ng-container *ngIf="authService.currentUser$ | async as user; else guestMobile">
-                        <a routerLink="/profile" class="btn btn-primary rounded-pill w-100 fw-bold border-0 island-glow-btn d-flex align-items-center justify-content-center gap-2" (click)="closeMenu()">
-                            <i class="bi bi-person-fill"></i>
-                            Mi Perfil
-                        </a>
-                    </ng-container>
-                    <ng-template #guestMobile>
-                        <div class="d-flex gap-2">
-                            <a routerLink="/login" class="btn btn-outline-light rounded-pill fw-bold flex-fill text-sm" (click)="closeMenu()">Iniciar Sesión</a>
-                            <a routerLink="/register" class="btn btn-primary rounded-pill fw-bold flex-fill text-sm border-0 island-glow-btn" (click)="closeMenu()">Registrarse</a>
-                        </div>
+            <ng-container *ngIf="authService.currentUser$ | async as user; else guestDesktop">
+                <a routerLink="/profile" class="profile-btn d-none d-lg-flex">
+                    <img *ngIf="user.avatar; else iconDesktop" [src]="user.avatar" alt="Avatar" class="avatar-sm">
+                    <ng-template #iconDesktop>
+                        <div class="avatar-sm fallback-avatar text-uppercase">{{ user.username.charAt(0) }}</div>
                     </ng-template>
+                </a>
+            </ng-container>
+            <ng-template #guestDesktop>
+                <div class="d-none d-lg-flex gap-2">
+                    <a routerLink="/login" class="btn btn-ghost rounded-pill fw-bold text-xs px-3">Iniciar Sesión</a>
+                    <a routerLink="/register" class="btn btn-primary rounded-pill fw-bold text-xs px-3 shadow-glow">Registrarse</a>
                 </div>
-            </div>
+            </ng-template>
 
+            <!-- Hamburger Button -->
+            <button class="hamburger-btn d-lg-none" type="button" (click)="toggleMenu()" [class.active]="menuOpen" aria-label="Menú">
+                <span></span><span></span><span></span>
+            </button>
         </div>
-    </nav>
-</div>
-<!-- Spacer for sticky nav -->
+    </div>
+
+    <!-- Ticker Section (Bloomberg style) -->
+    <div class="ticker-wrapper d-none d-lg-flex">
+        <div class="ticker-label">
+            <span class="dot live pulse me-2"></span>
+            <span class="mono fw-bold">LIVE</span>
+        </div>
+        <div class="ticker-scroll">
+            <div class="ticker mono">
+                <ng-container *ngFor="let i of [1, 2]">
+                    <span><span class="text-muted">LALIGA · 65'</span> &nbsp; REAL MADRID <span class="tnum fw-bold text-white">2</span> – <span class="tnum fw-bold text-primary">3</span> BARCELONA</span>
+                    <span class="text-secondary opacity-50">•</span>
+                    <span><span class="text-muted">PREMIER · 42'</span> &nbsp; ARSENAL <span class="tnum fw-bold text-primary">1</span> – <span class="tnum text-white">0</span> CHELSEA</span>
+                    <span class="text-secondary opacity-50">•</span>
+                    <span><span class="text-muted">SERIE A · FT</span> &nbsp; INTER <span class="tnum text-white">2</span> – <span class="tnum fw-bold text-primary">4</span> JUVENTUS</span>
+                    <span class="text-secondary opacity-50">•</span>
+                    <span><span class="text-muted">BUNDESLIGA · 78'</span> &nbsp; B. MUNICH <span class="tnum fw-bold text-primary">3</span> – <span class="tnum text-white">1</span> DORTMUND</span>
+                    <span class="text-secondary opacity-50">•</span>
+                    <span><span class="text-muted">UCL · 19:00</span> &nbsp; MAN CITY vs PSG</span>
+                    <span class="text-secondary opacity-50">•</span>
+                    <span><span class="text-muted">RATINGS HOY</span> &nbsp; <span class="text-primary">▲</span> BELLINGHAM <span class="tnum">9.4</span> · <span class="text-primary">▲</span> VINICIUS <span class="tnum">9.1</span> · <span class="text-danger">▼</span> COURTOIS <span class="t-num">4.2</span></span>
+                    <span class="text-secondary opacity-50">•</span>
+                </ng-container>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Dropdown -->
+    <div class="mobile-menu d-lg-none" [class.open]="menuOpen">
+        <ul class="navbar-nav gap-1 mt-3">
+            <li class="nav-item">
+                <a class="mobile-nav-link" routerLink="/matches" routerLinkActive="mobile-active" (click)="closeMenu()">Partidos</a>
+            </li>
+            <li class="nav-item">
+                <a class="mobile-nav-link" routerLink="/players" routerLinkActive="mobile-active" (click)="closeMenu()">Jugadores</a>
+            </li>
+            <li class="nav-item">
+                <a class="mobile-nav-link" routerLink="/lists" routerLinkActive="mobile-active" (click)="closeMenu()">Listas</a>
+            </li>
+        </ul>
+
+        <div class="mobile-auth mt-3 pt-3 border-top border-secondary border-opacity-25">
+            <ng-container *ngIf="authService.currentUser$ | async as user; else guestMobile">
+                <a routerLink="/profile" class="btn btn-primary rounded-pill w-100 fw-bold border-0 d-flex align-items-center justify-content-center gap-2" (click)="closeMenu()">
+                    Mi Perfil
+                </a>
+            </ng-container>
+            <ng-template #guestMobile>
+                <div class="d-flex gap-2">
+                    <a routerLink="/login" class="btn btn-outline-light rounded-pill fw-bold flex-fill text-sm" (click)="closeMenu()">Iniciar Sesión</a>
+                    <a routerLink="/register" class="btn btn-primary rounded-pill fw-bold flex-fill text-sm border-0" (click)="closeMenu()">Registrarse</a>
+                </div>
+            </ng-template>
+        </div>
+    </div>
+</header>
 <div class="navbar-spacer"></div>
