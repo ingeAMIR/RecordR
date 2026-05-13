@@ -109,12 +109,12 @@
             </div>
             <textarea
               [(ngModel)]="newOpinion"
-              class="field" style="min-height:64px; resize:vertical; background: rgba(255,255,255,0.02);"
+              class="form-control text-white w-100 border-secondary shadow-none focus-primary" style="min-height:80px; resize:vertical; background: rgba(255,255,255,0.05);"
               placeholder="Escribe tu opinión sobre este partido..."></textarea>
             <div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px;">
               <span class="mono" style="font-size:10px; color:var(--xports-text-muted);">SE RESPETUOSO CON LA COMUNIDAD</span>
-              <button class="btn btn-primary" [disabled]="!newOpinion.trim()" (click)="addOpinion()">
-                Publicar <i class="bi bi-send ms-1"></i>
+              <button class="btn btn-primary rounded-pill fw-bold px-4" [disabled]="!newOpinion.trim()" (click)="addOpinion()">
+                PUBLICAR <i class="bi bi-send ms-1"></i>
               </button>
             </div>
           </div>
