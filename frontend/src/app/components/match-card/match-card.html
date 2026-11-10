@@ -1,1 +1,42 @@
-<p>match-card works!</p>
+<div class="mc__top">
+  <img *ngIf="match.leagueLogo" class="mc__league-logo" [src]="match.leagueLogo" alt="" loading="lazy">
+  <span class="tag mc__league">{{ match.league }}</span>
+  <span class="tag mc__status" [class.is-live]="live">
+    <span class="live-dot" *ngIf="live"></span>{{ statusText }}
+  </span>
+</div>
+
+<div class="mc__art">
+  <div class="mc__bg" aria-hidden="true">
+    <span class="mc__ghost mc__ghost--home">{{ match.homeAbbrev }}</span>
+    <span class="mc__ghost mc__ghost--away">{{ match.awayAbbrev }}</span>
+    <span class="mc__foil"></span>
+  </div>
+
+  <span class="mc__crest mc__crest--home">
+    <img *ngIf="match.homeLogo; else homeAbbr" [src]="match.homeLogo" alt="" loading="lazy">
+    <ng-template #homeAbbr><span class="mc__abbr">{{ match.homeAbbrev }}</span></ng-template>
+  </span>
+
+  <span class="mc__plate">
+    <ng-container *ngIf="hasScore; else pre">
+      <span class="sr-only">{{ match.homeTeam }} {{ match.homeScore }}, {{ match.awayTeam }} {{ match.awayScore }}</span>
+      <span aria-hidden="true">{{ match.homeScore }}<span class="mc__dash">–</span>{{ match.awayScore }}</span>
+    </ng-container>
+    <ng-template #pre>{{ kickoff || 'vs' }}</ng-template>
+  </span>
+
+  <span class="mc__crest mc__crest--away">
+    <img *ngIf="match.awayLogo; else awayAbbr" [src]="match.awayLogo" alt="" loading="lazy">
+    <ng-template #awayAbbr><span class="mc__abbr">{{ match.awayAbbrev }}</span></ng-template>
+  </span>
+</div>
+
+<div class="mc__names">
+  <span class="mc__team">{{ match.homeTeam }}</span>
+  <span class="mc__team mc__team--away">{{ match.awayTeam }}</span>
+</div>
+
+<p class="mc__meta">
+  <span *ngIf="day">{{ day }}</span><span *ngIf="day && match.venue"> · </span><span *ngIf="match.venue">{{ match.venue }}</span>
+</p>

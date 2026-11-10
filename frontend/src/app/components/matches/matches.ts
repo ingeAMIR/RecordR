@@ -5,6 +5,9 @@ import { Subscription } from 'rxjs';
 import { EspnService, MatchInfo } from '../../services/espn.service';
 import { AuthService, User } from '../../services/auth.service';
 import { RatingService } from '../../services/rating.service';
+import { VtService } from '../../services/vt.service';
+import { TiltDirective } from '../../directives/tilt.directive';
+import { MatchCard } from '../match-card/match-card';
 
 interface SportTab {
   key: string;
@@ -15,7 +18,7 @@ interface SportTab {
 @Component({
   selector: 'app-matches',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, TiltDirective, MatchCard],
   templateUrl: './matches.html',
   styleUrl: './matches.scss'
 })
@@ -49,14 +52,24 @@ export class MatchesComponent implements OnInit, OnDestroy {
     private espnService: EspnService,
     private cdr: ChangeDetectorRef,
     private authService: AuthService,
-    private ratingService: RatingService
+    private ratingService: RatingService,
+    public vt: VtService
   ) {}
+
+  trackMatch(_: number, m: MatchInfo): string {
+    return m.id;
+  }
 
   ngOnInit(): void {
     this.sub.add(
       this.authService.currentUser$.subscribe(u => this.currentUser = u)
     );
+    this.load();
+  }
 
+  load(): void {
+    this.loading = true;
+    this.error = false;
     this.espnService.getAllMatches().subscribe({
       next: (matches) => {
         this.matches = matches;
@@ -65,8 +78,7 @@ export class MatchesComponent implements OnInit, OnDestroy {
         this.loading = false;
         this.cdr.detectChanges();
       },
-      error: (err) => {
-        console.error('Error fetching matches:', err);
+      error: () => {
         this.error = true;
         this.loading = false;
         this.cdr.detectChanges();
@@ -172,7 +184,7 @@ export class MatchesComponent implements OnInit, OnDestroy {
   }
 
   getStatusText(match: MatchInfo): string {
-    if (match.status === 'in') return '🔴 EN VIVO';
+    if (match.status === 'in') return 'EN VIVO';
     if (match.completed) return match.statusDetail || 'Final';
     return 'PRÓXIMO';
   }

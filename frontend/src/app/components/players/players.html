@@ -1,232 +1,108 @@
-<div class="players-page">
+<div class="wrap page">
+  <header class="head">
+    <h1 class="display display--xl">Jugadores</h1>
+    <p class="lede">Plantillas de la temporada {{ currentSeason }}, con datos de ESPN. Toca un cromo para abrir su ficha.</p>
+  </header>
 
-  <!-- HEADER -->
-  <div class="page-header px-4 px-lg-5 pt-5 pb-4">
-    <span class="espn-badge mb-2 d-inline-flex align-items-center gap-2">
-      <span class="espn-dot"></span> ESPN · DATOS EN VIVO
-    </span>
-    <h1 class="display-5 fw-black text-white m-0 mt-1">Jugadores</h1>
-    <p class="text-muted mb-0 mt-1">Temporada {{ currentSeason }} · {{ allPlayers.length }} jugadores cargados</p>
+  <div class="filters">
+    <div class="tabs" role="group" aria-label="Deporte">
+      <button class="tab" type="button" *ngFor="let t of sportTabs"
+        [class.is-active]="activeSport === t.sport && !searchMode" [attr.aria-pressed]="activeSport === t.sport"
+        (click)="selectSport(t.sport)">{{ t.sportLabel }}</button>
+    </div>
+
+    <div class="filters__row">
+      <label class="field search">
+        <span class="field__label">Buscar en todas las ligas</span>
+        <input class="input" type="search" name="q" [(ngModel)]="searchQuery" (input)="onSearchInput()"
+          placeholder="Nombre del jugador" autocomplete="off">
+      </label>
+
+      <label class="field" *ngIf="!searchMode && leagueOptions.length > 1">
+        <span class="field__label">Liga</span>
+        <select class="select" name="liga" [(ngModel)]="activeLeague" (change)="onLeagueChange()">
+          <option value="all">Todas</option>
+          <option *ngFor="let l of leagueOptions" [value]="l.slug">{{ l.name }}</option>
+        </select>
+      </label>
+
+      <label class="field" *ngIf="!searchMode && teamOptions.length">
+        <span class="field__label">Equipo</span>
+        <select class="select" name="equipo" [(ngModel)]="selectedTeam" (change)="onFilterChange()">
+          <option value="all">Todos</option>
+          <option *ngFor="let t of teamOptions" [value]="t.id">{{ t.name }}</option>
+        </select>
+      </label>
+
+      <label class="field" *ngIf="!searchMode && positionOptions.length">
+        <span class="field__label">Posición</span>
+        <select class="select" name="posicion" [(ngModel)]="selectedPos" (change)="onFilterChange()">
+          <option value="all">Todas</option>
+          <option *ngFor="let p of positionOptions" [value]="p">{{ p }}</option>
+        </select>
+      </label>
+
+      <button class="btn btn--line clear" type="button" *ngIf="hasActiveFilters" (click)="clearFilters()">Quitar filtros</button>
+    </div>
   </div>
 
-  <div class="px-4 px-lg-5">
-
-    <!-- Indicador de fuente de datos -->
-    <div *ngIf="!loading && allPlayers.length > 0"
-         class="cache-bar mb-3 d-flex align-items-center gap-2">
-      <i class="bi bi-lightning-charge-fill text-primary small"></i>
-      <small class="text-muted">{{ allPlayers.length }} jugadores · Temporada {{ currentSeason }}</small>
-    </div>
-
-    <!-- SPORT TABS -->
-    <div class="sport-tabs-row d-flex gap-2 mb-3">
-      <button *ngFor="let tab of sportTabs"
-              class="sport-tab-btn"
-              [class.active]="activeSport === tab.sport"
-              (click)="selectSport(tab.sport)">
-        <i class="bi {{ tab.icon }}"></i>
-        <span>{{ tab.sportLabel }}</span>
-        <span *ngIf="loading"
-              class="spinner-border spinner-border-sm ms-1 flex-shrink-0"></span>
-        <i *ngIf="!loading && allPlayers.length > 0"
-           class="bi bi-check-circle-fill ms-1 text-success small"></i>
-      </button>
-    </div>
-
-    <!-- FILTROS -->
-    <div class="filters-bar mb-4">
-
-      <div class="search-box position-relative flex-grow-1" style="min-width:180px;max-width:320px;">
-        <i class="bi bi-search search-icon"></i>
-        <input type="text" class="filter-input ps-4"
-               placeholder="Buscar cualquier jugador..."
-               [(ngModel)]="searchQuery" (input)="onSearchInput()">
-        <span *ngIf="searchLoading" class="search-spinner">
-          <span class="spinner-border spinner-border-sm text-primary"></span>
+  <ng-template #cromo let-p>
+    <button class="cromo" type="button" appTilt [tiltMax]="13" [style.--team]="p.teamColor || null"
+      (click)="openEspnProfile(p)" [attr.aria-label]="p.name + ', ' + p.team + '. Abrir ficha en ESPN'">
+      <span class="paper estampa__face cromo__face">
+        <span class="cromo__photo">
+          <span class="cromo__num" aria-hidden="true">{{ p.jersey || getInitials(p.name) }}</span>
+          <img *ngIf="p.photo" [src]="p.photo" alt="" loading="lazy" (error)="onPhotoError($event, p)">
+          <img *ngIf="p.teamLogo" class="cromo__crest" [src]="p.teamLogo" alt="" loading="lazy" (error)="onImgError($event)">
         </span>
-      </div>
-
-      <select class="filter-select" [(ngModel)]="activeLeague" (change)="onLeagueChange()"
-              *ngIf="leagueOptions.length > 1">
-        <option value="all">Todas las ligas</option>
-        <option *ngFor="let l of leagueOptions" [value]="l.slug">{{ l.name }}</option>
-      </select>
-
-      <select class="filter-select" [(ngModel)]="selectedTeam" (change)="onFilterChange()"
-              *ngIf="teamOptions.length > 1">
-        <option value="all">Todos los equipos</option>
-        <option *ngFor="let t of teamOptions" [value]="t.id">{{ t.name }}</option>
-      </select>
-
-      <div class="pos-pills d-flex gap-1 flex-wrap" *ngIf="positionOptions.length > 0">
-        <button class="pos-pill" [class.active]="selectedPos === 'all'"
-                (click)="selectedPos='all'; onFilterChange()">Todas</button>
-        <button *ngFor="let pos of positionOptions" class="pos-pill"
-                [class.active]="selectedPos === pos"
-                [style.--pos-color]="getPositionColor(pos)"
-                (click)="selectedPos = pos; onFilterChange()">{{ pos }}</button>
-      </div>
-
-      <div class="ms-auto d-flex align-items-center gap-2">
-        <span class="result-badge">{{ filteredPlayers.length }}</span>
-        <button *ngIf="hasActiveFilters" class="btn-clear" (click)="clearFilters()">
-          <i class="bi bi-x-lg"></i>
-        </button>
-      </div>
-    </div>
-
-    <!-- ── RESULTADOS DE BÚSQUEDA ESPN (modo búsqueda) ── -->
-    <ng-container *ngIf="searchMode">
-
-      <!-- Buscando... -->
-      <div *ngIf="searchLoading" class="text-center py-5">
-        <div class="spinner-border text-primary mb-3"></div>
-        <p class="text-muted">Buscando en ESPN...</p>
-      </div>
-
-      <!-- Sin resultados de búsqueda -->
-      <div *ngIf="!searchLoading && searchResults.length === 0" class="text-center py-5">
-        <i class="bi bi-person-x display-3 text-muted d-block mb-3 opacity-50"></i>
-        <h5 class="text-white">Sin resultados para "{{ searchQuery }}"</h5>
-        <p class="text-muted">Intenta con otro nombre o apodo.</p>
-      </div>
-
-      <!-- Grid resultados búsqueda -->
-      <div *ngIf="!searchLoading && searchResults.length > 0">
-        <div class="search-mode-header mb-3 d-flex align-items-center gap-2">
-          <i class="bi bi-search text-primary"></i>
-          <span class="text-white fw-bold">{{ searchResults.length }} resultados en ESPN</span>
-          <span class="text-muted small">— búsqueda global, todos los deportes</span>
-        </div>
-        <div class="row g-3 mb-4">
-          <div class="col-6 col-sm-4 col-lg-3 col-xl-2"
-               *ngFor="let player of searchResults; trackBy: trackById">
-            <div class="player-card rounded-4"
-                 [class.has-link]="!!player.espnUrl"
-                 (click)="openEspnProfile(player)">
-              <div class="card-top-bar" [style.background]="'#00e054'"></div>
-              <div class="card-inner p-3 d-flex flex-column align-items-center text-center">
-                <div class="w-100 d-flex justify-content-between align-items-center mb-2">
-                  <span class="sport-tag">{{ player.sportLabel || player.sport }}</span>
-                  <span class="sport-tag" style="color:rgba(255,255,255,0.3)">{{ player.league }}</span>
-                </div>
-                <div class="avatar-wrapper mb-2">
-                  <img *ngIf="player.photo" [src]="player.photo" [alt]="player.name"
-                       class="player-photo" (error)="onPhotoError($event, player)">
-                  <div *ngIf="!player.photo" class="player-initials"
-                       [style.background]="'linear-gradient(135deg,#00e05433,#00e05411)'">
-                    {{ getInitials(player.name) }}
-                  </div>
-                </div>
-                <h6 class="player-name text-white fw-bold mb-1">{{ player.name }}</h6>
-                <small class="text-muted">{{ player.team }}</small>
-                <div class="mt-2" *ngIf="player.espnUrl">
-                  <small style="color:#00e054;font-size:0.6rem;font-weight:700;">
-                    <i class="bi bi-box-arrow-up-right me-1"></i>Ver en ESPN
-                  </small>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-    </ng-container>
-
-    <!-- ── MODO BROWSE (sin búsqueda activa) ── -->
-    <ng-container *ngIf="!searchMode">
-
-    <!-- SKELETON -->
-    <div *ngIf="loading && allPlayers.length === 0" class="row g-3 mb-4">
-      <div class="col-6 col-sm-4 col-lg-3 col-xl-2" *ngFor="let s of skeletons">
-        <div class="player-skel rounded-4">
-          <div class="sk-top"></div>
-          <div class="p-3">
-            <div class="sk-circle mx-auto mb-2"></div>
-            <div class="sk-line w-70 mx-auto mb-1"></div>
-            <div class="sk-line w-50 mx-auto"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- SIN RESULTADOS -->
-    <div class="text-center py-5"
-         *ngIf="!loading && filteredPlayers.length === 0 && allPlayers.length > 0">
-      <i class="bi bi-person-x display-3 text-muted d-block mb-3 opacity-50"></i>
-      <h5 class="text-white">Sin resultados</h5>
-      <p class="text-muted">Intenta con otros filtros.</p>
-      <button class="btn btn-outline-primary rounded-pill px-4" (click)="clearFilters()">Limpiar filtros</button>
-    </div>
-
-    <!-- GRID DE JUGADORES -->
-    <div class="row g-3 mb-4" *ngIf="displayedPlayers.length > 0">
-      <div class="col-6 col-sm-4 col-lg-3 col-xl-2"
-           *ngFor="let player of displayedPlayers; trackBy: trackById">
-
-        <div class="player-card rounded-4"
-             [class.has-link]="!!player.espnUrl"
-             (click)="openEspnProfile(player)">
-
-          <!-- Barra de color del equipo -->
-          <div class="card-top-bar" [style.background]="player.teamColor"></div>
-
-          <div class="card-inner p-3 d-flex flex-column align-items-center text-center">
-
-            <!-- Jersey + trending -->
-            <div class="w-100 d-flex justify-content-between align-items-center mb-2">
-              <span class="jersey-num">#{{ player.jersey }}</span>
-              <span class="sport-tag">{{ player.sportLabel }}</span>
-            </div>
-
-            <!-- Avatar -->
-            <div class="avatar-wrapper mb-2" [style.border-color]="player.teamColor + '55'">
-              <img *ngIf="player.photo" [src]="player.photo" [alt]="player.name"
-                   class="player-photo" (error)="onPhotoError($event, player)">
-              <div *ngIf="!player.photo" class="player-initials"
-                   [style.background]="getInitialsBg(player.teamColor)">
-                {{ getInitials(player.name) }}
-              </div>
-              <span class="pos-chip" [style.background]="getPositionColor(player.positionGroup)">
-                {{ player.position }}
-              </span>
-            </div>
-
-            <!-- Nombre -->
-            <h6 class="player-name text-white fw-bold mb-1">{{ player.shortName || player.name }}</h6>
-
-            <!-- Equipo -->
-            <div class="d-flex align-items-center gap-1 mb-1">
-              <img [src]="player.teamLogo" class="team-mini-logo" [alt]="player.team"
-                   (error)="onImgError($event)">
-              <small class="text-muted text-truncate" style="max-width:110px;">{{ player.team }}</small>
-            </div>
-
-            <!-- Liga -->
-            <small class="league-label">{{ player.league }}</small>
-
-          </div>
-
-        </div>
-      </div>
-    </div>
-
-    <!-- PAGINACIÓN -->
-    <div class="text-center pb-5" *ngIf="displayedPlayers.length > 0">
-      <p class="text-muted small mb-3">
-        Mostrando {{ displayedPlayers.length }} de {{ filteredPlayers.length }}
-        <span *ngIf="loading" class="ms-2 text-primary">
-          <span class="spinner-border spinner-border-sm me-1"></span>cargando más...
+        <span class="cromo__name">{{ p.name }}</span>
+        <span class="cromo__meta">{{ p.team }}</span>
+        <span class="cromo__meta cromo__meta--2">
+          {{ p.position }}<ng-container *ngIf="p.age"> · {{ p.age }} años</ng-container><ng-container *ngIf="p.nationality"> · {{ p.nationality }}</ng-container>
         </span>
-      </p>
-      <button class="btn btn-load-more rounded-pill px-5 py-2"
-              *ngIf="hasMore" (click)="loadMore()">
-        <i class="bi bi-chevron-down me-2"></i>Ver más
-        <span class="badge bg-primary text-black ms-2">+{{ pageSize }}</span>
-      </button>
+        <span class="estampa__glare" aria-hidden="true"></span>
+      </span>
+    </button>
+  </ng-template>
+
+  <div class="grid" *ngIf="loading" aria-busy="true">
+    <div class="slot slot--loading grid__slot" *ngFor="let s of skeletons | slice:0:12; let i = index">
+      <span *ngIf="i === 0">Abriendo sobres…</span>
     </div>
-
-    </ng-container><!-- fin modo browse -->
-
   </div>
+
+  <ng-container *ngIf="!loading && searchMode">
+    <p class="count" role="status">
+      {{ searchLoading ? 'Buscando…' : searchResults.length + (searchResults.length === 1 ? ' resultado' : ' resultados') + ' para «' + searchQuery + '»' }}
+    </p>
+    <div class="grid" *ngIf="searchResults.length">
+      <ng-container *ngFor="let p of searchResults; trackBy: trackById">
+        <ng-container *ngTemplateOutlet="cromo; context: { $implicit: p }"></ng-container>
+      </ng-container>
+    </div>
+    <div class="slot state" *ngIf="!searchLoading && !searchResults.length">
+      <strong>Nadie con ese nombre.</strong>
+      <span class="small">Revisa la ortografía o prueba con el apellido.</span>
+    </div>
+  </ng-container>
+
+  <ng-container *ngIf="!loading && !searchMode">
+    <p class="count" role="status">{{ filteredPlayers.length }} {{ filteredPlayers.length === 1 ? 'jugador' : 'jugadores' }}</p>
+
+    <div class="grid" *ngIf="displayedPlayers.length">
+      <ng-container *ngFor="let p of displayedPlayers; trackBy: trackById">
+        <ng-container *ngTemplateOutlet="cromo; context: { $implicit: p }"></ng-container>
+      </ng-container>
+    </div>
+
+    <div class="slot state" *ngIf="!displayedPlayers.length">
+      <strong>{{ allPlayers.length ? 'Ningún cromo con esos filtros.' : 'No pudimos cargar los jugadores.' }}</strong>
+      <span class="small">{{ allPlayers.length ? 'Quita algún filtro para ver más.' : 'Vuelve a intentarlo en un momento.' }}</span>
+      <button class="btn btn--line btn--sm" type="button" *ngIf="hasActiveFilters" (click)="clearFilters()">Quitar filtros</button>
+    </div>
+
+    <div class="more" *ngIf="hasMore">
+      <button class="btn btn--ink btn--lg" type="button" (click)="loadMore()">Ver más jugadores</button>
+    </div>
+  </ng-container>
 </div>

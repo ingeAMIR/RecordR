@@ -5,13 +5,14 @@ import { Subject } from 'rxjs';
 import { takeUntil, debounceTime, distinctUntilChanged, switchMap, catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { EspnPlayersService, EspnPlayer, SPORT_LEAGUES } from '../../services/espn-players.service';
+import { TiltDirective } from '../../directives/tilt.directive';
 
 interface SportTab { sport: string; sportLabel: string; icon: string; }
 
 @Component({
   selector: 'app-players',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, TiltDirective],
   templateUrl: './players.html',
   styleUrl: './players.scss'
 })

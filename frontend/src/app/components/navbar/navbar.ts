@@ -1,4 +1,4 @@
-import { Component, inject, HostListener, OnInit } from '@angular/core';
+import { Component, inject, signal, HostListener, OnInit } from '@angular/core';
 import { RouterModule, Router, NavigationEnd } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
@@ -18,7 +18,7 @@ export class Navbar implements OnInit {
   private router = inject(Router);
 
   menuOpen = false;
-  tickerMatches: MatchInfo[] = [];
+  tickerMatches = signal<MatchInfo[]>([]);
 
   constructor() {
     // Cierra el menú al navegar
@@ -39,7 +39,7 @@ export class Navbar implements OnInit {
       // Take up to 10 matches for the ticker
       let selected = [...live, ...completed.slice(0, 5), ...upcoming.slice(0, 5)];
       // Shuffle or just slice to 10
-      this.tickerMatches = selected.slice(0, 10);
+      this.tickerMatches.set(selected.slice(0, 10));
     });
   }
 

@@ -8,11 +8,14 @@ import { OpinionService, Opinion } from '../../services/opinion.service';
 import { AuthService, User } from '../../services/auth.service';
 import { RatingService } from '../../services/rating.service';
 import { ListsService, UserList } from '../../services/lists.service';
+import { VtService } from '../../services/vt.service';
+import { TiltDirective } from '../../directives/tilt.directive';
+import { MatchCard } from '../match-card/match-card';
 
 @Component({
   selector: 'app-match-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule],
+  imports: [CommonModule, RouterLink, FormsModule, TiltDirective, MatchCard],
   templateUrl: './match-detail.html',
   styleUrl: './match-detail.scss'
 })
@@ -43,7 +46,12 @@ export class MatchDetailComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private ratingService: RatingService,
     private listsService: ListsService,
+    public vt: VtService,
   ) {}
+
+  listNote = '';
+  listNoteOk = true;
+  stars = [1, 2, 3, 4, 5];
 
   ngOnInit(): void {
     this.sub.add(
@@ -57,6 +65,7 @@ export class MatchDetailComponent implements OnInit, OnDestroy {
 
     this.route.paramMap.subscribe(params => {
       this.matchId = params.get('id');
+      this.vt.matchId = this.matchId;
       if (this.matchId) {
         this.espnService.getMatchById(this.matchId).subscribe(m => {
           if (m) {
@@ -102,12 +111,14 @@ export class MatchDetailComponent implements OnInit, OnDestroy {
     };
     this.listsService.addMatch(list.id, item).subscribe({
       next: () => {
-        alert(`Añadido a la lista "${list.name}"`);
+        this.listNote = `Guardado en «${list.name}».`;
+        this.listNoteOk = true;
         this.closeListsModal();
       },
       error: () => {
         // Asume que si falla es porque ya está en la lista (basado en el unique constraint)
-        alert('Este partido ya está en la lista.');
+        this.listNote = `Este partido ya estaba en «${list.name}».`;
+        this.listNoteOk = false;
         this.closeListsModal();
       }
     });

@@ -1,14 +1,14 @@
-<div class="cursor-dot" id="cursorDot"></div>
-<div class="cursor-trail" id="cursorTrail"></div>
+<a class="skip" href="#contenido">Saltar al contenido</a>
 
-<div class="d-flex flex-column min-vh-100">
-  <app-navbar></app-navbar>
+<app-navbar></app-navbar>
 
-  <div class="container mt-4 flex-grow-1">
-    <router-outlet></router-outlet>
+<main id="contenido" class="main">
+  <router-outlet></router-outlet>
+</main>
+
+<footer class="foot">
+  <div class="wrap foot__in">
+    <span>© 2026 RecordR</span>
+    <span>Marcadores, escudos y datos de jugadores: ESPN</span>
   </div>
-
-  <footer class="mt-auto py-3 text-center text-muted border-top border-secondary text-xs">
-    <small class="opacity-50">© 2026 RecordR</small>
-  </footer>
-</div>
+</footer>

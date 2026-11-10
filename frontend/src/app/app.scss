@@ -1,0 +1,26 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.main {
+  display: block;
+  flex: 1;
+  min-width: 0;
+}
+
+.foot {
+  border-top: 1px solid var(--rule);
+  padding-block: 20px;
+  color: var(--fg-2);
+  font-size: 0.875rem;
+}
+
+.foot__in {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 6px 24px;
+}
